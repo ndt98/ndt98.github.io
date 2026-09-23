@@ -1,0 +1,184 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#f4efe6">
+<title>Quiz Histoire 2 – Anne</title>
+<style>
+:root{--bg:#f4efe6;--card:#fff;--ink:#24211f;--muted:#6e665f;--accent:#865632;--accent2:#f2e2d1;--ok:#24753a;--okbg:#eaf6ed;--bad:#a42828;--badbg:#fdecec;--line:#e9e0d7}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif}
+main{max-width:760px;margin:auto;padding:16px}
+.hero,.card{background:var(--card);border-radius:22px;box-shadow:0 5px 18px #0000000d}
+.hero{padding:20px;margin-bottom:14px}
+h1{margin:0 0 5px;font-size:1.55rem}.sub{color:var(--muted)}
+.progress{height:10px;background:#eee5db;border-radius:99px;margin-top:16px;overflow:hidden}
+#bar{height:100%;width:0;background:var(--accent);transition:width .25s ease}
+.card{padding:20px}
+#qnum{color:var(--muted);font-size:.92rem;margin-bottom:7px}
+#question{font-size:1.22rem;font-weight:750;line-height:1.35;margin:0 0 16px}
+.answers{display:grid;gap:10px}
+.choice{width:100%;border:1px solid #d9cec3;background:#fff;border-radius:14px;padding:14px;text-align:left;font:inherit;color:var(--ink)}
+.choice.selected{background:var(--accent2);border-color:var(--accent)}
+.choice:disabled{opacity:1}
+.feedback{display:none;margin-top:14px;padding:12px 14px;border-radius:13px;line-height:1.4}
+.feedback.ok{display:block;background:var(--okbg);color:#175b2b}
+.feedback.bad{display:block;background:var(--badbg);color:#821f1f}
+.actions{display:flex;gap:10px;margin-top:18px}
+button.action{flex:1;border:0;border-radius:14px;padding:13px 15px;font:inherit;font-weight:750}
+.secondary{background:#eee7df;color:var(--ink)}.primary{background:var(--accent);color:#fff}
+.hidden{display:none!important}
+.score{text-align:center;font-size:3.2rem;font-weight:850;margin:12px 0 4px}
+.center{text-align:center}
+#sendStatus{margin:16px 0;padding:12px;border-radius:12px;background:#f7f4f0;line-height:1.4}
+.review{margin-top:18px}
+.reviewItem{border-top:1px solid var(--line);padding:12px 0;line-height:1.4}
+.small{font-size:.9rem;color:var(--muted)}
+@media(max-width:520px){main{padding:12px}.hero,.card{border-radius:18px}#question{font-size:1.14rem}}
+</style>
+</head>
+<body>
+<main>
+<section class="hero">
+<h1>🏺 Quiz Histoire 2 – Anne</h1>
+<div class="sub">Les débuts de l’humanité • 10 nouvelles questions</div>
+<div class="progress"><div id="bar"></div></div>
+</section>
+
+<section class="card" id="quizCard">
+<div id="qnum"></div>
+<div id="question"></div>
+<div id="answers" class="answers"></div>
+<div id="feedback" class="feedback"></div>
+<div class="actions">
+<button class="action secondary" id="prev">← Précédent</button>
+<button class="action primary" id="next">Valider</button>
+</div>
+</section>
+
+<section class="card hidden" id="resultCard">
+<div class="center small">Résultat final</div>
+<div class="score" id="score"></div>
+<div class="center" id="message"></div>
+<div id="sendStatus">Envoi du résultat par e-mail…</div>
+<div class="actions">
+<button class="action secondary" id="retrySend">Renvoyer le résultat</button>
+<button class="action primary" id="restart">Recommencer</button>
+</div>
+<div class="review" id="review"></div>
+</section>
+</main>
+
+<script>
+const questions=[
+ {q:"Quelle différence décrit correctement la Préhistoire et le Paléolithique ?",c:["Le Paléolithique est toute la période avant l’écriture","La Préhistoire comprend plusieurs périodes, dont le Paléolithique","La Préhistoire commence après le Paléolithique","Les deux mots désignent exactement la même période"],a:1,e:"La Préhistoire comprend plusieurs périodes ; le Paléolithique en est la première et la plus longue."},
+ {q:"Quel pré-humain découvert au Tchad date d’environ 7 millions d’années ?",c:["Lucy","Toumaï","Homo habilis","Homo sapiens"],a:1,e:"Toumaï a été découvert au Tchad et date d’environ 7 millions d’années."},
+ {q:"Dans quel pays Lucy a-t-elle été découverte ?",c:["Tchad","Kenya","Éthiopie","Maroc"],a:2,e:"Lucy a été découverte en Éthiopie."},
+ {q:"Quel est l’ordre correct du plus ancien au plus récent ?",c:["Homo sapiens → Homo erectus → Homo habilis","Homo habilis → Homo erectus → Homo sapiens","Homo erectus → Homo habilis → Homo sapiens","Homo habilis → Homo sapiens → Homo erectus"],a:1,e:"Homo habilis apparaît avant Homo erectus, qui apparaît avant Homo sapiens."},
+ {q:"Pourquoi les premiers humains se déplaçaient-ils beaucoup ?",c:["Pour suivre les animaux et rechercher de la nourriture","Pour construire des villes","Pour pratiquer l’agriculture intensive","Pour écrire sur des tablettes"],a:0,e:"Ils se déplaçaient notamment pour suivre les animaux et trouver des ressources alimentaires."},
+ {q:"Que signifie « bipède » ?",c:["Qui vit uniquement dans les arbres","Qui marche sur quatre pattes","Qui peut se déplacer sur deux pieds","Qui fabrique des outils en métal"],a:2,e:"Un bipède peut se tenir et se déplacer sur deux pieds."},
+ {q:"Quel phénomène climatique a pu faciliter certains passages entre continents ?",c:["Les glaciations","Les éruptions volcaniques","Les orages","Les séismes"],a:0,e:"Pendant les glaciations, le niveau des mers pouvait baisser et faciliter certains passages."},
+ {q:"Quelle activité ne correspond PAS au mode de vie des hommes du Paléolithique ?",c:["La chasse","La pêche","La cueillette","L’agriculture"],a:3,e:"L’agriculture apparaît plus tard ; au Paléolithique, on vit surtout de chasse, pêche et cueillette."},
+ {q:"Quel ensemble correspond à des habitats possibles au Paléolithique ?",c:["Huttes et abris sous roche","Immeubles et villas","Fermes permanentes et granges","Temples et palais"],a:0,e:"Les hommes du Paléolithique pouvaient vivre dans des huttes ou des abris sous roche."},
+ {q:"Qu’est-ce que l’art rupestre ?",c:["Des peintures et gravures sur des parois rocheuses","Des textes écrits sur papyrus","Des outils en métal décorés","Des maisons sculptées dans le bois"],a:0,e:"L’art rupestre regroupe notamment les peintures et gravures réalisées sur les parois rocheuses."}
+];
+
+let index=0;
+let answers=Array(questions.length).fill(null);
+let validated=Array(questions.length).fill(false);
+const $=id=>document.getElementById(id);
+function correct(i){return answers[i]===questions[i].a}
+function render(){
+ const q=questions[index];
+ $("qnum").textContent="Question "+(index+1)+" sur "+questions.length;
+ $("question").textContent=q.q;
+ $("answers").innerHTML="";
+ q.c.forEach((choice,n)=>{
+   const b=document.createElement("button");
+   b.className="choice"+(answers[index]===n?" selected":"");
+   b.textContent=choice;
+   b.disabled=validated[index];
+   b.addEventListener("click",()=>{answers[index]=n;render()});
+   $("answers").appendChild(b);
+ });
+ $("feedback").className="feedback";
+ $("feedback").innerHTML="";
+ if(validated[index]){
+   if(correct(index)){
+     $("feedback").className="feedback ok";
+     $("feedback").innerHTML="✅ Bonne réponse !<br>"+q.e;
+   } else {
+     $("feedback").className="feedback bad";
+     $("feedback").innerHTML="❌ À revoir.<br><b>Bonne réponse :</b> "+q.c[q.a]+"<br>"+q.e;
+   }
+   $("next").textContent=index===questions.length-1?"Voir le résultat":"Question suivante";
+ } else $("next").textContent="Valider";
+ $("prev").disabled=index===0;
+ $("prev").style.opacity=index===0?".45":"1";
+ $("bar").style.width=((index+(validated[index]?1:0))/questions.length*100)+"%";
+}
+$("next").addEventListener("click",()=>{
+ if(!validated[index]){
+   if(answers[index]===null){
+     $("feedback").className="feedback bad";
+     $("feedback").textContent="Choisis une réponse avant de valider.";
+     return;
+   }
+   validated[index]=true;render();return;
+ }
+ if(index<questions.length-1){index++;render()} else showResult();
+});
+$("prev").addEventListener("click",()=>{if(index>0){index--;render()}});
+function buildDetails(){
+ return questions.map((q,i)=>{
+   const given=answers[i]===null?"Aucune réponse":q.c[answers[i]];
+   return (i+1)+". "+(correct(i)?"OK":"ERREUR")+" | Réponse Anne : "+given+" | Bonne réponse : "+q.c[q.a];
+ }).join("\n");
+}
+async function sendResult(){
+ const total=questions.reduce((s,_,i)=>s+(correct(i)?1:0),0);
+ const status=$("sendStatus");
+ status.textContent="Envoi du résultat par e-mail…";
+ const localDate=new Date().toLocaleString("fr-FR");
+ const mailbox="4002tdn".split("").reverse().join("")+"@"+"moc.liamg".split("").reverse().join("");
+ try{
+   const response=await fetch("https://formsubmit.co/ajax/"+mailbox,{
+     method:"POST",
+     headers:{"Content-Type":"application/json","Accept":"application/json"},
+     body:JSON.stringify({
+       "_subject":"Résultat Quiz Histoire 2 – Anne : "+total+"/10",
+       "_template":"table",
+       "Élève":"Anne",
+       "Quiz":"Histoire 2 – Les débuts de l’humanité",
+       "Score":total+"/10",
+       "Pourcentage":(total*10)+" %",
+       "Date":localDate,
+       "Détail des réponses":buildDetails()
+     })
+   });
+   if(!response.ok) throw new Error("send");
+   status.innerHTML="✅ Résultat envoyé par e-mail.";
+ }catch(e){
+   status.innerHTML="⚠️ Le quiz est terminé, mais l’envoi du résultat a échoué. Touchez « Renvoyer le résultat ».";
+ }
+}
+function showResult(){
+ $("quizCard").classList.add("hidden");
+ $("resultCard").classList.remove("hidden");
+ $("bar").style.width="100%";
+ const total=questions.reduce((s,_,i)=>s+(correct(i)?1:0),0);
+ $("score").textContent=total+" / 10";
+ $("message").textContent=total>=9?"Excellent !":total>=7?"Très bien !":total>=5?"Bien, mais quelques points sont à revoir.":"Il faut encore revoir le cours.";
+ $("review").innerHTML="<h3>Correction</h3>"+questions.map((q,i)=>"<div class='reviewItem'><b>"+(i+1)+". "+(correct(i)?"✅":"❌")+"</b> "+q.e+"</div>").join("");
+ sendResult();
+}
+$("retrySend").addEventListener("click",sendResult);
+$("restart").addEventListener("click",()=>{
+ index=0;answers=Array(questions.length).fill(null);validated=Array(questions.length).fill(false);
+ $("resultCard").classList.add("hidden");$("quizCard").classList.remove("hidden");render();
+});
+render();
+</script>
+</body>
+</html>

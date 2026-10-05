@@ -1,0 +1,32 @@
+name: Import audio
+
+on:
+  push:
+    paths:
+      - '.github/workflows/import-thay-phap-hoa-audio.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  import-audio:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Download audio
+        run: |
+          curl -L --fail --retry 3 --retry-delay 2 \
+            'https://sdmntprdenmarkeast.oaiusercontent.com/files/00000000-e40c-8210-be3f-295a4eb2ecfb/raw?se=2026-10-05T07%3A53%3A21Z&sp=r&sv=2026-02-06&sr=b&scid=349d2098-ce3b-589c-a786-0f685e5d2185&skoid=ba81670d-b682-4d2d-9682-ac0ffdfb3fa1&sktid=a48cca56-e6da-484e-a814-9c849652bcb3&skt=2026-10-05T03%3A56%3A26Z&ske=2026-10-06T03%3A56%3A26Z&sks=b&skv=2026-02-06&sig=sKeWQXvz83D%2BiwgwL%2Ba70W1ICAmkRi8AaKOku1vEvKE%3D' \
+            -o thay-phap-hoa-03102026.m4a
+          test -s thay-phap-hoa-03102026.m4a
+
+      - name: Commit audio
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add thay-phap-hoa-03102026.m4a
+          git commit -m 'Add Thay Phap Hoa audio 03-10-2026'
+          git push

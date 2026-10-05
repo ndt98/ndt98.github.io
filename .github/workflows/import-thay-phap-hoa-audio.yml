@@ -19,7 +19,7 @@ jobs:
       - name: Download audio
         run: |
           curl -L --fail --retry 3 --retry-delay 2 \
-            'https://sdmntprdenmarkeast.oaiusercontent.com/files/00000000-e40c-8210-be3f-295a4eb2ecfb/raw?se=2026-10-05T07%3A53%3A21Z&sp=r&sv=2026-02-06&sr=b&scid=349d2098-ce3b-589c-a786-0f685e5d2185&skoid=ba81670d-b682-4d2d-9682-ac0ffdfb3fa1&sktid=a48cca56-e6da-484e-a814-9c849652bcb3&skt=2026-10-05T03%3A56%3A26Z&ske=2026-10-06T03%3A56%3A26Z&sks=b&skv=2026-02-06&sig=sKeWQXvz83D%2BiwgwL%2Ba70W1ICAmkRi8AaKOku1vEvKE%3D' \
+            'https://sdmntprdenmarkeast.oaiusercontent.com/files/00000000-3cf4-8210-ba31-6b92a0676507/raw?se=2026-10-05T07%3A55%3A46Z&sp=r&sv=2026-02-06&sr=b&scid=01297b9f-3a94-5e1c-a12a-93b45cbbe497&skoid=ba81670d-b682-4d2d-9682-ac0ffdfb3fa1&sktid=a48cca56-e6da-484e-a814-9c849652bcb3&skt=2026-10-05T05%3A55%3A31Z&ske=2026-10-06T05%3A55%3A31Z&sks=b&skv=2026-02-06&sig=MH0CXR5xrVtp9yM17TVv9/QasJD5RHoXtHdL/AMQAGc%3D' \
             -o thay-phap-hoa-03102026.m4a
           test -s thay-phap-hoa-03102026.m4a
 
@@ -27,6 +27,9 @@ jobs:
         run: |
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git fetch origin master
+          git reset --hard origin/master
+          test -s thay-phap-hoa-03102026.m4a
           git add thay-phap-hoa-03102026.m4a
           git commit -m 'Add Thay Phap Hoa audio 03-10-2026'
-          git push
+          git push origin HEAD:master

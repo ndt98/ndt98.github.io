@@ -1,0 +1,1 @@
+window.sendThomasQuiz=async function(score,details){try{await fetch('https://formsubmit.co/ajax/ndt2004@gmail.com',{method:'POST',headers:{'Content-Type':'application/json','Accept':'application/json'},body:JSON.stringify({'_subject':'Géométrie progressive - Thomas - '+score+'/10','Élève':'Thomas','Score':score+'/10','Détail':details})})}catch(e){}};

@@ -3,42 +3,49 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>Quiz Vrai/Faux – Le monde habité</title>
+<title>Quiz Vrai/Faux difficile – Le monde habité</title>
 <style>
 *{box-sizing:border-box}
 body{margin:0;background:#f4efe7;color:#28231f;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif}
 main{max-width:820px;margin:auto;padding:12px}
 .card{background:white;border-radius:18px;padding:18px;margin:12px 0;box-shadow:0 4px 16px #0001}
 h1{font-size:1.5rem;margin:0 0 6px}
+h2{font-size:1.15rem}
 .muted{color:#6b625b;line-height:1.45}
 .q{padding:16px 0;border-top:1px solid #ece4dc}
 .q:first-child{border-top:0}
-.statement{font-weight:750;line-height:1.4;margin-bottom:10px}
+.statement{font-weight:760;line-height:1.42;margin-bottom:10px}
 .choices{display:flex;gap:10px}
 .choice{flex:1;border:1px solid #d7cbc0;border-radius:13px;padding:13px;background:#fff;font:inherit;font-weight:800}
 .choice.selected{background:#ead8c6;border-color:#765035}
 .submit{width:100%;border:0;border-radius:14px;padding:14px;background:#765035;color:white;font:inherit;font-weight:850;margin-top:12px}
+.secondary{background:#eee7df;color:#2d2723}
 .hidden{display:none!important}
 .score{text-align:center;font-size:3rem;font-weight:850;margin:10px 0}
 .review{border-top:1px solid #eadfd5;padding:12px 0;line-height:1.45}
 .ok{color:#17632e;font-weight:800}
 .bad{color:#8a2020;font-weight:800}
+.mailbox{margin-top:14px;padding:12px;border-radius:12px;background:#f7f3ee}
 </style>
 </head>
 <body>
 <main>
 <section class="card">
 <h1>Quiz Vrai / Faux – Le monde habité</h1>
-<div class="muted">Anne • Géographie 6e • niveau difficile</div>
-<div class="muted">20 affirmations. Certaines sont très proches du cours mais comportent un détail faux.</div>
+<div class="muted">Anne • Géographie 6e • niveau très difficile</div>
+<div class="muted">20 affirmations. Beaucoup sont presque exactes : un seul détail peut rendre toute la phrase fausse.</div>
 </section>
 
 <section class="card" id="quiz"></section>
+
 <section class="card hidden" id="result">
 <div class="muted" style="text-align:center">Résultat</div>
 <div class="score" id="score"></div>
 <div id="message" style="text-align:center"></div>
-<div id="mailStatus" class="muted" style="text-align:center;margin-top:10px"></div>
+<div class="mailbox">
+<div id="mailStatus" class="muted" style="text-align:center"></div>
+<button class="submit secondary" id="mailFallback" type="button">Envoyer le résultat par Mail</button>
+</div>
 <div id="review"></div>
 <button class="submit" id="restart" type="button">Recommencer</button>
 </section>
@@ -46,29 +53,31 @@ h1{font-size:1.5rem;margin:0 0 6px}
 
 <script>
 const qs=[
-["Le relief est l’ensemble des irrégularités présentes à la surface de la Terre.",true,"C’est la définition du cours."],
-["Une plaine est une surface plane située obligatoirement à haute altitude.",false,"Une plaine est une surface plane de faible altitude."],
-["Sur un plateau, les cours d’eau peuvent avoir creusé des vallées profondes.",true,"C’est ce qui distingue notamment le plateau de la plaine dans le cours."],
-["Une montagne se caractérise par des altitudes élevées et des pentes raides.",true,"C’est la définition retenue dans le cours."],
-["Une contrainte naturelle est un obstacle créé uniquement par les activités humaines.",false,"Elle est posée par la nature et peut limiter l’implantation humaine."],
-["L’aridité correspond à un manque d’eau permanent ou durable.",true,"C’est la définition du cours."],
-["Un littoral est une région située au contact de la mer et de la terre.",true,"C’est la définition du cours."],
-["La densité de population correspond au nombre d’habitants par kilomètre carré.",true,"La densité s’exprime en habitants par km²."],
-["Un foyer de peuplement est une région très densément peuplée depuis longtemps.",true,"Le cours insiste sur la forte densité et l’ancienneté du peuplement."],
-["Un désert humain est un espace totalement dépourvu d’habitants.",false,"Il s’agit d’un espace très faiblement peuplé, pas forcément vide."],
-["Le mot urbain désigne ce qui est en rapport avec la campagne.",false,"Urbain renvoie à la ville ; rural renvoie à la campagne."],
-["Les plaines et les grandes vallées sont souvent des espaces de fortes densités.",true,"Le cours les cite parmi les espaces fortement peuplés."],
-["Les hautes montagnes sont généralement favorables à de fortes densités de population.",false,"Elles constituent souvent une contrainte naturelle et sont faiblement peuplées."],
-["Les régions polaires peuvent être des déserts humains en raison de fortes contraintes naturelles.",true,"Le froid extrême limite fortement le peuplement."],
-["Le Sahara est un exemple de désert humain étudié dans le cours.",true,"Il figure parmi les exemples du cours."],
-["L’Amazonie est citée comme région de forêt dense pouvant avoir de faibles densités.",true,"La forêt dense peut constituer une contrainte au peuplement."],
-["Les littoraux sont toujours faiblement peuplés car la mer empêche les activités humaines.",false,"Au contraire, de nombreux littoraux concentrent de fortes densités."],
-["Un facteur historique est un élément du passé qui peut aider à expliquer la répartition actuelle de la population.",true,"Les héritages du passé influencent le peuplement actuel."],
-["Les fortes densités d’Europe s’expliquent seulement par le relief.",false,"Le cours évoque aussi des facteurs historiques, économiques et humains."],
-["Les foyers de peuplement asiatiques et européens sont anciens.",true,"Le cours indique que ces grands foyers sont très anciens."]
+["Une plaine et un plateau sont tous deux des reliefs globalement plats, mais ils se distinguent notamment par leur altitude et l'encaissement des vallées.",true,"La plaine est de faible altitude ; le plateau est plus élevé et peut être entaillé par des vallées profondes."],
+["Une plaine peut être définie comme une vaste surface plane de faible altitude dans laquelle les cours d'eau ont creusé des vallées profondes.",false,"Dans le cours, les vallées profondes caractérisent plutôt le plateau ; la plaine reste peu encaissée."],
+["Un plateau est forcément montagneux parce qu'il se situe à une altitude élevée.",false,"Un plateau est une vaste étendue globalement plane malgré son altitude élevée."],
+["Des altitudes élevées suffisent à définir une montagne, même si les pentes sont faibles.",false,"La définition associe altitudes élevées et pentes raides."],
+["Le relief désigne seulement les montagnes et les plateaux, pas les plaines.",false,"Le relief correspond à l'ensemble des irrégularités de la surface terrestre, y compris les plaines."],
+["Une contrainte naturelle peut rendre l'installation humaine plus difficile sans la rendre totalement impossible.",true,"Une contrainte limite ou complique le peuplement ; elle ne signifie pas forcément absence totale d'habitants."],
+["L'aridité désigne un manque durable d'eau ; elle peut donc expliquer de faibles densités de population.",true,"Le manque d'eau constitue une contrainte importante au peuplement."],
+["Une région très froide mais riche en eau ne peut pas être un désert humain.",false,"Le froid extrême peut à lui seul constituer une forte contrainte et produire de très faibles densités."],
+["Un littoral est défini par le contact entre la terre et la mer, mais tous les littoraux ne sont pas nécessairement très densément peuplés.",true,"La définition est géographique ; la forte densité est fréquente mais pas automatique partout."],
+["La densité de population mesure la part de la population d'un pays vivant en ville.",false,"Elle mesure le nombre d'habitants par kilomètre carré."],
+["Deux territoires ayant le même nombre d'habitants ont forcément la même densité de population.",false,"La densité dépend aussi de la superficie du territoire."],
+["Un foyer de peuplement est seulement une grande ville très peuplée.",false,"C'est une vaste région de fortes densités, souvent peuplée depuis très longtemps."],
+["Une région peut être un foyer de peuplement même si toute sa surface n'est pas uniformément très dense.",true,"Un foyer est une grande région de fortes concentrations humaines ; il peut comporter des contrastes internes."],
+["Un désert humain doit être totalement vide pour mériter ce nom.",false,"Il suffit qu'il soit très faiblement peuplé ; il peut comporter quelques habitants."],
+["Le Sahara et l'Amazonie peuvent tous deux être des déserts humains, mais pas pour la même contrainte naturelle principale.",true,"Le Sahara est surtout marqué par l'aridité ; l'Amazonie par la forêt dense et ses contraintes."],
+["L'Himalaya peut être faiblement peuplé principalement parce qu'il cumule altitude élevée, fortes pentes et difficultés d'accès.",true,"Ces contraintes physiques rendent l'installation et les activités humaines plus difficiles."],
+["Les plaines, vallées et littoraux sont toujours très densément peuplés, quelles que soient les autres conditions.",false,"Ils sont souvent favorables, mais la densité dépend aussi du climat, de l'histoire, de l'économie et d'autres facteurs."],
+["Un facteur historique peut expliquer qu'une région reste aujourd'hui densément peuplée même si le relief n'est pas le seul élément favorable.",true,"Le peuplement actuel résulte aussi d'héritages anciens."],
+["Dire qu'une région est rurale signifie qu'elle est forcément faiblement peuplée.",false,"Rural signifie lié à la campagne ; cela ne définit pas directement une densité précise."],
+["Les fortes et faibles densités de population s'expliquent par une combinaison de facteurs naturels et humains plutôt que par une seule cause universelle.",true,"Le cours montre que relief, climat, histoire et activités humaines peuvent se combiner."]
 ];
 
 let answers=Array(qs.length).fill(null);
+let lastScore=0;
+let lastDetail="";
 
 function render(){
  const box=document.getElementById("quiz");
@@ -82,7 +91,9 @@ function render(){
    box.appendChild(d);
  });
  const b=document.createElement("button");
- b.type="button"; b.className="submit"; b.textContent="Corriger le quiz";
+ b.type="button";
+ b.className="submit";
+ b.textContent="Corriger le quiz";
  b.onclick=finish;
  box.appendChild(b);
  box.querySelectorAll(".choice").forEach(btn=>{
@@ -94,46 +105,81 @@ function render(){
  });
 }
 
+function buildDetail(){
+ return qs.map((q,i)=>{
+   const rep=answers[i]===true?"Vrai":"Faux";
+   const good=q[1]?"Vrai":"Faux";
+   return (i+1)+". "+(answers[i]===q[1]?"OK":"ERREUR")+" | Anne : "+rep+" | Bonne réponse : "+good+" | "+q[2];
+ }).join("\n");
+}
+
 async function sendMail(score){
  const st=document.getElementById("mailStatus");
- st.textContent="Envoi automatique du résultat…";
+ st.textContent="Tentative d'envoi automatique du résultat…";
  try{
-  const r=await fetch("https://formsubmit.co/ajax/ndt2004@gmail.com",{
-   method:"POST",
-   headers:{"Content-Type":"application/json","Accept":"application/json"},
-   body:JSON.stringify({
-    "_subject":"Quiz Vrai/Faux Géographie – Anne : "+score+"/20",
-    "Élève":"Anne",
-    "Quiz":"Le monde habité – Vrai/Faux",
-    "Score":score+"/20"
-   })
-  });
-  if(!r.ok)throw new Error();
-  st.textContent="Résultat envoyé automatiquement par e-mail.";
+   const r=await fetch("https://formsubmit.co/ajax/ndt2004@gmail.com",{
+     method:"POST",
+     headers:{"Content-Type":"application/json","Accept":"application/json"},
+     body:JSON.stringify({
+       "_subject":"Quiz géographie difficile – Anne : "+score+"/20",
+       "_template":"table",
+       "_captcha":"false",
+       "Élève":"Anne",
+       "Quiz":"Le monde habité – Vrai/Faux très difficile",
+       "Score":score+"/20",
+       "Détail":lastDetail
+     })
+   });
+   let data={};
+   try{data=await r.json();}catch(e){}
+   if(!r.ok)throw new Error("HTTP "+r.status);
+   const msg=(data.message||data.success||"").toString();
+   if(/activate|confirm/i.test(msg)){
+     st.textContent="Le service d'e-mail demande encore une activation/confirmation. Utilise le bouton ci-dessous.";
+   }else{
+     st.textContent="Le service a accepté l'envoi automatique. Si aucun mail n'arrive, utilise le bouton ci-dessous.";
+   }
  }catch(e){
-  st.textContent="Résultat affiché, mais l’envoi du mail a échoué.";
+   st.textContent="L'envoi automatique n'a pas abouti. Utilise le bouton ci-dessous.";
  }
 }
 
 function finish(){
- if(answers.some(v=>v===null)){alert("Réponds à toutes les affirmations avant de corriger.");return;}
+ if(answers.some(v=>v===null)){
+   alert("Réponds à toutes les affirmations avant de corriger.");
+   return;
+ }
  let score=0, html="<h2>Correction détaillée</h2>";
  qs.forEach((q,i)=>{
    const ok=answers[i]===q[1];
    if(ok)score++;
    html+='<div class="review"><div class="'+(ok?'ok':'bad')+'">'+(i+1)+'. '+(ok?'✓':'✗')+' '+(q[1]?'Vrai':'Faux')+'</div><div>'+q[2]+'</div></div>';
  });
+ lastScore=score;
+ lastDetail=buildDetail();
  document.getElementById("quiz").classList.add("hidden");
  document.getElementById("result").classList.remove("hidden");
  document.getElementById("score").textContent=score+" / 20";
- document.getElementById("message").textContent=score>=18?"Excellente maîtrise.":score>=15?"Très bon niveau.":score>=12?"Bon ensemble, quelques notions à revoir.":"Reprends les définitions et les facteurs de peuplement.";
+ document.getElementById("message").textContent=
+   score>=18?"Excellente maîtrise : très peu de pièges t'ont trompée.":
+   score>=15?"Très bon niveau : revois seulement les notions correspondant aux erreurs.":
+   score>=12?"Bon ensemble, mais certaines distinctions ne sont pas encore solides.":
+   "Il faut reprendre les définitions et les facteurs du peuplement.";
  document.getElementById("review").innerHTML=html;
  window.scrollTo(0,0);
  sendMail(score);
 }
 
+document.getElementById("mailFallback").onclick=()=>{
+ const subject=encodeURIComponent("Quiz géographie difficile – Anne : "+lastScore+"/20");
+ const body=encodeURIComponent("Anne\nScore : "+lastScore+"/20\n\n"+lastDetail);
+ window.location.href="mailto:ndt2004@gmail.com?subject="+subject+"&body="+body;
+};
+
 document.getElementById("restart").onclick=()=>{
  answers=Array(qs.length).fill(null);
+ lastScore=0;
+ lastDetail="";
  document.getElementById("result").classList.add("hidden");
  document.getElementById("quiz").classList.remove("hidden");
  document.getElementById("mailStatus").textContent="";

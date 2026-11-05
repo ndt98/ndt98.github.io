@@ -49,10 +49,10 @@ const Q=[
 {t:'Raisonnement',q:'Un nombre a pour décomposition 2³ × 3² × 5. Lequel est ce nombre ?',c:['360','720','180','540'],a:'360',e:'2³ × 3² × 5 = 8 × 9 × 5 = 360.'}
 ];
 
-const quiz=document.getElementById('quiz'),r=document.getElementById('r');let locked=false;
+const EMAIL=['ndt2004','gmail.com'].join('@');const quiz=document.getElementById('quiz'),r=document.getElementById('r');let locked=false,sent=false;
 function sh(a){a=[...a];for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
-function draw(){
-  quiz.innerHTML='';r.style.display='none';locked=false;
+function encodeResult(obj){const s=unescape(encodeURIComponent(JSON.stringify(obj)));return btoa(s).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'')}async function sendMail(score,details){if(sent)return;sent=true;try{await fetch('https://formsubmit.co/ajax/'+EMAIL,{method:'POST',headers:{'Content-Type':'application/json','Accept':'application/json'},body:JSON.stringify({'_subject':'Maths Thomas niveau 2 – '+score+'/10','Élève':'Thomas','Thème':'Nombres premiers + développement','Score':score+'/10','Détail':details})})}catch(e){}}function draw(){
+  quiz.innerHTML='';r.style.display='none';locked=false;sent=false;
   Q.forEach((x,i)=>{
     const d=document.createElement('section');d.className='card';d.id='c'+i;
     d.innerHTML='<div class="tag">'+x.t+'</div><div class="q">'+x.q+'</div>';
@@ -65,7 +65,7 @@ function draw(){
   })
 }
 b.onclick=()=>{
-  if(locked)return;locked=true;let s=0,details=[];
+  if(locked)return;locked=true;let s=0,details=[],items=[];
   Q.forEach((x,i)=>{
     const c=document.getElementById('c'+i),a=c.querySelector('input:checked');
     c.querySelectorAll('.o').forEach(o=>{if(o.querySelector('input').value===x.a)o.classList.add('ok')});
@@ -73,7 +73,7 @@ b.onclick=()=>{
     if(a){v=a.value;if(v===x.a)s++;else a.closest('.o').classList.add('bad')}
     c.querySelector('.e').style.display='block';
     c.querySelectorAll('input').forEach(z=>z.disabled=true);
-    details.push(x.q+' | réponse Thomas : '+v+' | attendu : '+x.a)
+    details.push(x.q+' | réponse Thomas : '+v+' | attendu : '+x.a);items.push({q:x.q,given:v,expected:x.a,ok:v===x.a})
   });
   r.style.display='block';
   r.innerHTML='<h2>'+s+'/10</h2><p>'+(s>=9?'Très bon. On pourra encore monter.':s>=7?'Bon niveau, mais on consolide encore ce palier.':'On reste à ce niveau jusqu’à maîtrise.')+'</p><textarea readonly>'+details.join('\n')+'</textarea>';

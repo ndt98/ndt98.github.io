@@ -64,7 +64,7 @@ function encodeResult(obj){const s=unescape(encodeURIComponent(JSON.stringify(ob
     const e=document.createElement('div');e.className='e';e.textContent=x.e;d.appendChild(e);quiz.appendChild(d)
   })
 }
-b.onclick=()=>{
+document.getElementById('b').onclick=()=>{
   if(locked)return;locked=true;let s=0,details=[],items=[];
   Q.forEach((x,i)=>{
     const c=document.getElementById('c'+i),a=c.querySelector('input:checked');
@@ -90,5 +90,5 @@ b.onclick=()=>{
   sendMail(s,details.join('\n'));
   scrollTo({top:0,behavior:'smooth'})
 };
-n.onclick=draw;draw();
+document.getElementById('n').onclick=draw;draw();
 </script></main></body></html>

@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "student": "Thomas",
+  "status": "en_attente",
+  "message": "Aucun resultat de quiz transmis depuis un appareil.",
+  "quiz_id": null,
+  "completed_at": null,
+  "score": null,
+  "total": null,
+  "items": []
+}

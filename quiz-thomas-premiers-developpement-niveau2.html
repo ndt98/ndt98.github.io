@@ -75,8 +75,11 @@ b.onclick=()=>{
     c.querySelectorAll('input').forEach(z=>z.disabled=true);
     details.push(x.q+' | réponse Thomas : '+v+' | attendu : '+x.a);items.push({q:x.q,given:v,expected:x.a,ok:v===x.a})
   });
+  const payload={title:'Maths 3e – Thomas – niveau 2',score:s+'/10',when:new Date().toLocaleString('fr-FR'),items:items};
+  const resultUrl='https://ndt98.github.io/resultat-thomas.html?r='+encodeResult(payload);
   r.style.display='block';
-  r.innerHTML='<h2>'+s+'/10</h2><p>'+(s>=9?'Très bon. On pourra encore monter.':s>=7?'Bon niveau, mais on consolide encore ce palier.':'On reste à ce niveau jusqu’à maîtrise.')+'</p><textarea readonly>'+details.join('\n')+'</textarea>';
+  r.innerHTML='<h2>'+s+'/10</h2><p>'+(s>=9?'Très bon. On pourra encore monter.':s>=7?'Bon niveau, mais on consolide encore ce palier.':'On reste à ce niveau jusqu’à maîtrise.')+'</p><p><a href="'+resultUrl+'" target="_blank" style="display:block;text-align:center;padding:14px;border-radius:12px;background:#172033;color:#fff;text-decoration:none;font-weight:800">Ouvrir le résultat GitHub</a></p><p style="font-size:14px;color:#666">Conserve ou partage ce lien : il contient le score et toutes les réponses de Thomas.</p><textarea readonly>'+details.join('\\n')+'</textarea>';
+  sendMail(s,details.join('\\n'));
   scrollTo({top:0,behavior:'smooth'})
 };
 n.onclick=draw;draw();

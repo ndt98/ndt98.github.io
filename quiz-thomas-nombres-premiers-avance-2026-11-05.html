@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Thomas – Nombres premiers – Niveau avancé</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:#f5f7fb;color:#182230;font:16px -apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif}
+main{max-width:750px;margin:auto;padding:16px}
+.card{background:#fff;border:1px solid #dce1ea;border-radius:16px;padding:17px;margin:13px 0}
+h1{font-size:26px;margin:0 0 9px}h2{font-size:23px;margin:0 0 10px}
+.question{font-size:19px;font-weight:750;line-height:1.45;margin:7px 0 12px}
+.tag,.muted{font-size:14px;color:#667085;line-height:1.5}
+.tag{font-weight:700}
+.option{display:block;margin:8px 0;padding:12px;border-radius:11px;border:1px solid #d5dae3;cursor:pointer}
+.option input{margin-right:10px;transform:scale(1.18)}
+.option.right{background:#e7f6ea;border-color:#8abf97}
+.option.wrong{background:#fdebec;border-color:#e6a2ab}
+.explanation{display:none;margin-top:12px;color:#42526a;line-height:1.5}
+button{background:#172033;color:white;border:0;border-radius:12px;padding:14px;font-weight:750;font-size:17px;width:100%;margin:6px 0}
+button.alt{background:#e8ecf2;color:#172033}
+#result{display:none;border:2px solid #172033}
+textarea{width:100%;height:250px;padding:12px;border:1px solid #bec7d5;border-radius:11px;font-size:14px;line-height:1.5}
+</style>
+</head>
+<body><main>
+<section class="card">
+<h1>Thomas – Nombres premiers</h1>
+<p><b>Niveau avancé · 10 questions fixes</b></p>
+<p class="muted">Tests de primalité, factorisations, PGCD, PPCM, fraction irréductible, diviseurs et carré parfait. Les questions restent identiques si tu recommences, mais les réponses changent de position.</p>
+</section>
+<section id="result" class="card"></section>
+<div id="questions"></div>
+<button id="correct" type="button">Corriger les 10 questions</button>
+<button id="restart" type="button" class="alt">Recommencer la même série</button>
+</main>
+<script>
+(function(){
+"use strict";
+const Q=[
+{t:"Test de primalité",q:"221 est-il un nombre premier ?",c:["Non, car 221 = 13 × 17","Oui, car 221 est impair","Non, car 221 = 7 × 31","Oui, car 221 n'est divisible ni par 2, ni par 3, ni par 5"],a:"Non, car 221 = 13 × 17",e:"221 = 13 × 17. Pour tester un nombre inférieur à 225, il faut aussi essayer les nombres premiers jusqu'à sa racine carrée, ici notamment 13."},
+{t:"Test de primalité",q:"Lequel de ces nombres est premier ?",c:["137","143","145","147"],a:"137",e:"143 = 11 × 13 ; 145 = 5 × 29 ; 147 = 3 × 49. Pour 137, aucun des nombres premiers 2, 3, 5, 7 et 11 ne le divise, et √137 est inférieur à 12."},
+{t:"Décomposition",q:"Quelle est la décomposition de 756 en facteurs premiers ?",c:["2² × 3³ × 7","2² × 3² × 7","2³ × 3³ × 7","2² × 3³ × 5"],a:"2² × 3³ × 7",e:"756 = 4 × 189 = 2² × 27 × 7 = 2² × 3³ × 7."},
+{t:"Décomposition",q:"Quelle est la décomposition de 1 386 en facteurs premiers ?",c:["2 × 3² × 7 × 11","2 × 3 × 7 × 11","2² × 3² × 7 × 11","2 × 3² × 7²"],a:"2 × 3² × 7 × 11",e:"1 386 = 2 × 693 = 2 × 9 × 77 = 2 × 3² × 7 × 11."},
+{t:"PGCD",q:"Quel est le PGCD de 756 et de 540 ?",c:["108","54","36","216"],a:"108",e:"756 = 2² × 3³ × 7 et 540 = 2² × 3³ × 5. Le PGCD reprend uniquement les facteurs communs aux exposants minimaux : 2² × 3³ = 108."},
+{t:"PPCM",q:"Quel est le PPCM de 84 et de 90 ?",c:["1 260","630","2 520","840"],a:"1 260",e:"84 = 2² × 3 × 7 ; 90 = 2 × 3² × 5. Le PPCM reprend tous les facteurs aux exposants maximaux : 2² × 3² × 5 × 7 = 1 260."},
+{t:"Fraction irréductible",q:"Quelle est la forme irréductible de 462/770 ?",c:["3/5","6/10","11/15","7/11"],a:"3/5",e:"462 = 2 × 3 × 7 × 11 et 770 = 2 × 5 × 7 × 11. Après simplification des facteurs communs 2, 7 et 11, on obtient 3/5. 6/10 est égal à 3/5 mais n'est pas irréductible."},
+{t:"Nombre de diviseurs",q:"Sachant que 360 = 2³ × 3² × 5, combien de diviseurs positifs 360 possède-t-il, en comptant 1 et 360 ?",c:["24","18","12","30"],a:"24",e:"Un diviseur choisit un exposant de 2 parmi 0 à 3 (4 possibilités), de 3 parmi 0 à 2 (3 possibilités) et de 5 parmi 0 à 1 (2 possibilités). Donc 4 × 3 × 2 = 24."},
+{t:"Carré parfait",q:"Quel est le plus petit entier strictement positif par lequel multiplier 294 pour obtenir un carré parfait ?",c:["6","2","3","7"],a:"6",e:"294 = 2 × 3 × 7². Pour que tous les exposants soient pairs, il faut multiplier par 2 × 3 = 6. On obtient 1 764 = 42²."},
+{t:"Raisonnement",q:"Lequel de ces nombres possède exactement trois diviseurs positifs (1 et lui-même compris) ?",c:["49","27","35","81"],a:"49",e:"49 = 7² a exactement les diviseurs 1, 7 et 49. Un entier a exactement trois diviseurs positifs s'il est le carré d'un nombre premier. 27 en a 4 ; 35 en a 4 ; 81 en a 5."}
+];
+const $=id=>document.getElementById(id);
+const questions=$("questions"),result=$("result");let corrected=false;
+function mix(values){let a=values.slice();for(let i=a.length-1;i>0;i--){let j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
+function render(){
+ corrected=false;questions.replaceChildren();result.replaceChildren();result.style.display="none";
+ Q.forEach((x,i)=>{
+  const card=document.createElement("section");card.className="card";
+  const tag=document.createElement("div");tag.className="tag";tag.textContent="Question "+(i+1)+" · "+x.t;card.appendChild(tag);
+  const stem=document.createElement("div");stem.className="question";stem.textContent=x.q;card.appendChild(stem);
+  mix(x.c).forEach(v=>{
+    const label=document.createElement("label");label.className="option";
+    const input=document.createElement("input");input.type="radio";input.name="q"+i;input.value=v;
+    label.appendChild(input);label.appendChild(document.createTextNode(v));card.appendChild(label)
+  });
+  const exp=document.createElement("div");exp.className="explanation";exp.textContent=x.e;card.appendChild(exp);
+  questions.appendChild(card)
+ })
+}
+$("correct").onclick=function(){
+ if(corrected)return;
+ const marked=Q.map((x,i)=>document.querySelector('input[name="q'+i+'"]:checked'));
+ if(marked.some(x=>!x)){alert("Réponds aux 10 questions avant de corriger.");return}
+ corrected=true;
+ let score=0;
+ const lines=["THOMAS – NOMBRES PREMIERS – NIVEAU AVANCÉ",""];
+ Q.forEach((x,i)=>{
+  const choice=marked[i].value,good=choice===x.a;if(good)score++;
+  const card=questions.children[i];
+  card.querySelectorAll("label.option").forEach(label=>{
+   const input=label.querySelector("input");input.disabled=true;
+   if(input.value===x.a)label.classList.add("right");
+   else if(input.value===choice)label.classList.add("wrong")
+  });
+  card.querySelector(".explanation").style.display="block";
+  lines.push((i+1)+". "+x.q,"Réponse Thomas : "+choice,"Réponse attendue : "+x.a,good?"JUSTE":"ERREUR","")
+ });
+ lines.splice(1,0,"Score : "+score+"/10");
+ result.style.display="block";
+ const title=document.createElement("h2");title.textContent="Résultat : "+score+" / 10";result.appendChild(title);
+ const desc=document.createElement("p");desc.textContent=score>=9?"Excellente maîtrise de cette série avancée.":score>=7?"Bon niveau. Analyse les questions manquées pour progresser.":"Les corrections détaillées ci-dessous indiquent les notions à retravailler.";result.appendChild(desc);
+ const copy=document.createElement("button");copy.type="button";copy.textContent="Copier score et réponses";result.appendChild(copy);
+ const area=document.createElement("textarea");area.readOnly=true;area.value=lines.join("\n");result.appendChild(area);
+ const small=document.createElement("p");small.className="muted";small.textContent="Copie ce résultat et transmets-le pour obtenir un quiz adapté aux erreurs. Aucune clé GitHub ni sauvegarde automatique.";result.appendChild(small);
+ copy.onclick=async()=>{
+  try{await navigator.clipboard.writeText(area.value);copy.textContent="Résultat copié"}
+  catch(e){area.focus();area.select();document.execCommand("copy");copy.textContent="Texte sélectionné"}
+ };
+ window.scrollTo({top:0,behavior:"smooth"})
+};
+$("restart").onclick=render;render();
+})();
+</script>
+</body></html>

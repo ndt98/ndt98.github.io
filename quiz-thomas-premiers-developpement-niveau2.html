@@ -31,7 +31,7 @@ textarea{width:100%;min-height:170px;margin-top:10px;font-size:14px}
 • surveiller les signes négatifs
 </div>
 </div>
-<div id="r" class="card"></div>
+<div class="card" id="access"><b>Résultats de Thomas</b><p>Après correction, consulte ici le résultat conservé sur cet appareil.</p><p><a href="https://ndt98.github.io/resultat-thomas.html" id="permanent" style="display:block;padding:14px;border-radius:12px;background:#172033;color:white;text-align:center;text-decoration:none;font-weight:800">Consulter le dernier résultat sur cet appareil</a></p></div><div id="r" class="card"></div>
 <form id="quiz"></form>
 <button type="button" id="b">Corriger</button>
 <button type="button" id="n" class="secondary">Refaire</button>
@@ -49,7 +49,7 @@ const Q=[
 {t:'Raisonnement',q:'Un nombre a pour décomposition 2³ × 3² × 5. Lequel est ce nombre ?',c:['360','720','180','540'],a:'360',e:'2³ × 3² × 5 = 8 × 9 × 5 = 360.'}
 ];
 
-const EMAIL=['ndt2004','gmail.com'].join('@');const quiz=document.getElementById('quiz'),r=document.getElementById('r');let locked=false,sent=false;
+const EMAIL=['ndt2004','gmail.com'].join('@');const STORE='thomas.quiz.latest.v1';const quiz=document.getElementById('quiz'),r=document.getElementById('r');let locked=false,sent=false;
 function sh(a){a=[...a];for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
 function encodeResult(obj){const s=unescape(encodeURIComponent(JSON.stringify(obj)));return btoa(s).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'')}async function sendMail(score,details){if(sent)return;sent=true;try{await fetch('https://formsubmit.co/ajax/'+EMAIL,{method:'POST',headers:{'Content-Type':'application/json','Accept':'application/json'},body:JSON.stringify({'_subject':'Maths Thomas niveau 2 – '+score+'/10','Élève':'Thomas','Thème':'Nombres premiers + développement','Score':score+'/10','Détail':details})})}catch(e){}}function draw(){
   quiz.innerHTML='';r.style.display='none';locked=false;sent=false;
@@ -76,10 +76,18 @@ b.onclick=()=>{
     details.push(x.q+' | réponse Thomas : '+v+' | attendu : '+x.a);items.push({q:x.q,given:v,expected:x.a,ok:v===x.a})
   });
   const payload={title:'Maths 3e – Thomas – niveau 2',score:s+'/10',when:new Date().toLocaleString('fr-FR'),items:items};
+  try{localStorage.setItem(STORE,JSON.stringify(payload))}catch(e){}
   const resultUrl='https://ndt98.github.io/resultat-thomas.html?r='+encodeResult(payload);
   r.style.display='block';
-  r.innerHTML='<h2>'+s+'/10</h2><p>'+(s>=9?'Très bon. On pourra encore monter.':s>=7?'Bon niveau, mais on consolide encore ce palier.':'On reste à ce niveau jusqu’à maîtrise.')+'</p><p><a href="'+resultUrl+'" target="_blank" style="display:block;text-align:center;padding:14px;border-radius:12px;background:#172033;color:#fff;text-decoration:none;font-weight:800">Ouvrir le résultat GitHub</a></p><p style="font-size:14px;color:#666">Conserve ou partage ce lien : il contient le score et toutes les réponses de Thomas.</p><textarea readonly>'+details.join('\\n')+'</textarea>';
-  sendMail(s,details.join('\\n'));
+  r.innerHTML='<h2>'+s+'/10</h2><p>'+(s>=9?'Très bon. On pourra encore monter.':s>=7?'Bon niveau, mais on consolide encore ce palier.':'On reste à ce niveau jusqu’à maîtrise.')+'</p><p><a id="viewResult" target="_blank" rel="noopener" style="display:block;text-align:center;padding:16px;border-radius:12px;background:#172033;color:#fff;text-decoration:none;font-weight:800">CONSULTER LE RÉSULTAT</a></p><p><button id="copyLink" type="button" style="background:#e5e9ef;color:#17191d">Copier le lien partageable</button></p><label for="fullLink"><b>Lien complet à partager :</b></label><textarea id="fullLink" readonly style="min-height:90px"></textarea><label for="fullResult"><b>Réponses complètes :</b></label><textarea id="fullResult" readonly></textarea><p style="font-size:13px;color:#666">Le dernier résultat est aussi conservé sur cet appareil. Aucun fichier du dépôt GitHub n’est modifié automatiquement. L’envoi FormSubmit est tenté séparément.</p>';
+  document.getElementById('viewResult').href=resultUrl;
+  document.getElementById('fullLink').value=resultUrl;
+  document.getElementById('fullResult').value=details.join('\n');
+  document.getElementById('copyLink').onclick=async()=>{
+    try{await navigator.clipboard.writeText(resultUrl);document.getElementById('copyLink').textContent='Lien copié'}
+    catch(e){const field=document.getElementById('fullLink');field.focus();field.select();document.execCommand('copy');document.getElementById('copyLink').textContent='Lien sélectionné : copier'}
+  };
+  sendMail(s,details.join('\n'));
   scrollTo({top:0,behavior:'smooth'})
 };
 n.onclick=draw;draw();

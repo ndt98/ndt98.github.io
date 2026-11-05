@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Thomas – nombres premiers et développement niveau 2</title>
+<style>
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;background:#f5f7fb;margin:0;color:#17191d}
+main{max-width:760px;margin:auto;padding:16px}
+.card{background:#fff;border:1px solid #ddd;border-radius:16px;padding:16px;margin:12px 0}
+.q{font-size:19px;font-weight:750;margin-bottom:10px;line-height:1.4}
+.o{display:block;border:1px solid #ddd;border-radius:11px;padding:10px;margin:7px 0}
+.ok{background:#e9f7ed}.bad{background:#fdecec}
+.e{display:none;color:#666;font-size:14px;margin-top:8px;line-height:1.45}
+.tag{font-size:13px;color:#666;font-weight:700;margin-bottom:6px}
+.rule{background:#f8fafc}
+button{width:100%;padding:14px;border:0;border-radius:13px;font-size:18px;font-weight:800;background:#172033;color:#fff;margin-top:8px}
+.secondary{background:#e5e9ef;color:#111}
+#r{display:none;border:2px solid #172033}
+textarea{width:100%;min-height:170px;margin-top:10px;font-size:14px}
+</style>
+</head>
+<body><main>
+<div class="card">
+<h1>Maths 3e – Thomas</h1>
+<p><b>Niveau 2.</b> Après 10/10 : on augmente progressivement la difficulté.</p>
+<div class="card rule"><b>Objectifs :</b><br>
+• décomposer des nombres plus grands en facteurs premiers<br>
+• utiliser ces décompositions pour simplifier ou comparer<br>
+• développer deux expressions puis réduire<br>
+• surveiller les signes négatifs
+</div>
+</div>
+<div id="r" class="card"></div>
+<form id="quiz"></form>
+<button type="button" id="b">Corriger</button>
+<button type="button" id="n" class="secondary">Refaire</button>
+<script>
+const Q=[
+{t:'Décomposition',q:'Quelle est la décomposition en facteurs premiers de 180 ?',c:['2² × 3² × 5','2 × 3² × 10','2³ × 3 × 5','2² × 3 × 5²'],a:'2² × 3² × 5',e:'180 = 18 × 10 = (2 × 3²) × (2 × 5) = 2² × 3² × 5.'},
+{t:'Décomposition',q:'Quelle est la décomposition en facteurs premiers de 252 ?',c:['2² × 3² × 7','2 × 3² × 14','2² × 3 × 7²','2³ × 3² × 7'],a:'2² × 3² × 7',e:'252 = 4 × 63 = 2² × 3² × 7.'},
+{t:'Nombre premier',q:'Le nombre 119 est-il premier ?',c:['Oui','Non, car 119 = 7 × 17','Non, car il est divisible par 3','Non, car il est pair'],a:'Non, car 119 = 7 × 17',e:'119 possède les diviseurs 7 et 17.'},
+{t:'Fraction',q:'On a 84 = 2² × 3 × 7 et 126 = 2 × 3² × 7. Quelle est la forme irréductible de 84/126 ?',c:['2/3','3/2','4/6','14/21'],a:'2/3',e:'Les facteurs communs 2 × 3 × 7 se simplifient. Il reste 2/3.'},
+{t:'Diviseur commun',q:'Avec 60 = 2² × 3 × 5 et 90 = 2 × 3² × 5, quel est leur plus grand diviseur commun ?',c:['30','15','45','60'],a:'30',e:'On prend les facteurs communs avec les plus petits exposants : 2 × 3 × 5 = 30.'},
+{t:'Développement',q:'Développe et réduis : 3(2x + 5) + 4(x − 2)',c:['10x + 7','10x + 23','7x + 7','10x − 7'],a:'10x + 7',e:'3(2x+5)=6x+15 et 4(x−2)=4x−8, donc 10x+7.'},
+{t:'Développement',q:'Développe et réduis : 5(3x − 2) − 2(x + 4)',c:['13x − 18','17x − 18','13x + 6','15x − 10'],a:'13x − 18',e:'15x−10−2x−8 = 13x−18.'},
+{t:'Développement',q:'Développe et réduis : −3(2x − 5) + 4(x + 1)',c:['−2x + 19','−10x + 19','−2x + 11','2x + 19'],a:'−2x + 19',e:'−3(2x−5)=−6x+15 et 4(x+1)=4x+4, donc −2x+19.'},
+{t:'Développement',q:'Développe et réduis : 2(5x − 3) − 3(2x − 4)',c:['4x + 6','16x − 18','4x − 18','8x + 6'],a:'4x + 6',e:'10x−6−6x+12 = 4x+6.'},
+{t:'Raisonnement',q:'Un nombre a pour décomposition 2³ × 3² × 5. Lequel est ce nombre ?',c:['360','720','180','540'],a:'360',e:'2³ × 3² × 5 = 8 × 9 × 5 = 360.'}
+];
+
+const quiz=document.getElementById('quiz'),r=document.getElementById('r');let locked=false;
+function sh(a){a=[...a];for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
+function draw(){
+  quiz.innerHTML='';r.style.display='none';locked=false;
+  Q.forEach((x,i)=>{
+    const d=document.createElement('section');d.className='card';d.id='c'+i;
+    d.innerHTML='<div class="tag">'+x.t+'</div><div class="q">'+x.q+'</div>';
+    sh(x.c).forEach(v=>{
+      const l=document.createElement('label');l.className='o';
+      const inp=document.createElement('input');inp.type='radio';inp.name='q'+i;inp.value=v;
+      l.appendChild(inp);l.appendChild(document.createTextNode(' '+v));d.appendChild(l)
+    });
+    const e=document.createElement('div');e.className='e';e.textContent=x.e;d.appendChild(e);quiz.appendChild(d)
+  })
+}
+b.onclick=()=>{
+  if(locked)return;locked=true;let s=0,details=[];
+  Q.forEach((x,i)=>{
+    const c=document.getElementById('c'+i),a=c.querySelector('input:checked');
+    c.querySelectorAll('.o').forEach(o=>{if(o.querySelector('input').value===x.a)o.classList.add('ok')});
+    let v='—';
+    if(a){v=a.value;if(v===x.a)s++;else a.closest('.o').classList.add('bad')}
+    c.querySelector('.e').style.display='block';
+    c.querySelectorAll('input').forEach(z=>z.disabled=true);
+    details.push(x.q+' | réponse Thomas : '+v+' | attendu : '+x.a)
+  });
+  r.style.display='block';
+  r.innerHTML='<h2>'+s+'/10</h2><p>'+(s>=9?'Très bon. On pourra encore monter.':s>=7?'Bon niveau, mais on consolide encore ce palier.':'On reste à ce niveau jusqu’à maîtrise.')+'</p><textarea readonly>'+details.join('\n')+'</textarea>';
+  scrollTo({top:0,behavior:'smooth'})
+};
+n.onclick=draw;draw();
+</script></main></body></html>

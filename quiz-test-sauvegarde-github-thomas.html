@@ -1,0 +1,136 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Test sauvegarde GitHub – Thomas</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:#f5f7fb;color:#172033;font:16px -apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif}
+main{max-width:740px;padding:16px;margin:auto}
+.card{background:#fff;border:1px solid #d9dee6;border-radius:16px;padding:17px;margin:12px 0}
+h1{font-size:25px;margin:0 0 8px}h2{font-size:20px;margin-top:0}
+p{line-height:1.5}
+small,.muted{color:#667085}
+label.option{display:block;padding:12px;border:1px solid #d9dee6;border-radius:11px;margin:8px 0;cursor:pointer}
+label.option input{margin-right:8px;transform:scale(1.12)}
+label.correct{background:#eaf7ed;border-color:#86bf93}
+label.wrong{background:#fdecec;border-color:#dc9999}
+button{font-size:16px;font-weight:750;background:#172033;color:white;border:0;border-radius:12px;padding:12px 14px;width:100%;margin:6px 0}
+button.alt{background:#e8ebf1;color:#172033}
+input[type=password]{width:100%;padding:13px;border:1px solid #b8c1cf;border-radius:10px;font-size:17px;margin:8px 0}
+#scoreCard{display:none}
+#state{white-space:pre-line;font-weight:650}
+.status-good{color:#196b35}.status-bad{color:#a43f32}.status-info{color:#374c6d}
+a{color:#174a83;overflow-wrap:anywhere}
+code{overflow-wrap:anywhere}
+</style>
+</head>
+<body><main>
+<section class="card">
+<h1>Test de sauvegarde automatique – Thomas</h1>
+<p>Ce test contient une question. Après correction, le résultat est écrit dans un <b>vrai fichier de ton dépôt GitHub</b>. Aucune copie de lien n'est nécessaire.</p>
+<p class="muted">Cible : <code>ndt98/ndt98.github.io</code> → <code>resultat-thomas.json</code> sur la branche <code>master</code>.</p>
+</section>
+<section class="card" id="settings">
+<h2>Configuration initiale (une seule fois par navigateur)</h2>
+<p>GitHub demande une clé personnelle fine-grained limitée à ce seul dépôt et à la permission <b>Contents: Read and write</b>. Renseigne-la sur l'appareil de Thomas, jamais dans une conversation ou un fichier public.</p>
+<label for="pat">Clé GitHub de ce dépôt</label>
+<input id="pat" type="password" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="github_pat_…">
+<button type="button" id="saveKey">Enregistrer la clé sur cet appareil</button>
+<button type="button" id="deleteKey" class="alt">Effacer la clé de cet appareil</button>
+<p id="keyStatus" class="muted" aria-live="polite"></p>
+<small>La clé est conservée uniquement dans le stockage local de ce navigateur. Elle n'est jamais ajoutée au résultat ni envoyée à un autre site que l'API GitHub. Toute personne ayant accès à ce navigateur ou à son stockage pourrait toutefois l'utiliser pour modifier le dépôt. Utilise une clé à durée de vie courte et révoque-la après le test si nécessaire.</small>
+</section>
+<section class="card" id="question">
+<h2>Question de test</h2>
+<p><b>Développe et réduis :</b> 2(3x − 4) + x</p>
+<label class="option"><input type="radio" name="answer" value="6x − 8">6x − 8</label>
+<label class="option"><input type="radio" name="answer" value="7x + 8">7x + 8</label>
+<label class="option"><input type="radio" name="answer" value="7x − 8">7x − 8</label>
+<label class="option"><input type="radio" name="answer" value="5x − 8">5x − 8</label>
+<button type="button" id="correct">Corriger et sauvegarder dans GitHub</button>
+</section>
+<section class="card" id="scoreCard">
+<h2 id="score"></h2>
+<p id="detail"></p>
+<h2>État de la sauvegarde GitHub</h2>
+<p id="state" class="status-info" aria-live="polite">Pas encore commencée.</p>
+<button type="button" id="retry" class="alt">Réessayer la sauvegarde GitHub</button>
+<p><a href="https://ndt98.github.io/resultat-thomas.html" target="_blank" rel="noopener">Consulter le dernier résultat réellement enregistré</a></p>
+<p><a href="https://github.com/ndt98/ndt98.github.io/blob/master/resultat-thomas.json" target="_blank" rel="noopener">Voir le fichier brut dans GitHub</a></p>
+<p class="muted" id="emailStatus">FormSubmit : non tenté.</p>
+</section>
+</main>
+<script>
+(function(){
+"use strict";
+const KEY="thomas_result_github_pat_v1";
+const REPO_API="https://api.github.com/repos/ndt98/ndt98.github.io/contents/resultat-thomas.json";
+const CORRECT="7x − 8";
+const $=id=>document.getElementById(id);
+let payload=null;
+function storedToken(){try{return localStorage.getItem(KEY)||""}catch(e){return ""}}
+function setKeyStatus(){ $("keyStatus").textContent=storedToken()?"Clé configurée sur cet appareil. La sauvegarde sera lancée automatiquement à la correction.":"Aucune clé configurée sur cet appareil."; }
+function state(message,ok){$("state").textContent=message;$("state").className=ok===true?"status-good":ok===false?"status-bad":"status-info";}
+function makeBase64(s){const bytes=new TextEncoder().encode(s);let bin="";for(let i=0;i<bytes.length;i+=8192)bin+=String.fromCharCode(...bytes.subarray(i,i+8192));return btoa(bin)}
+function explainError(status,message){if(status===401)return "GitHub 401 : clé invalide ou expirée.";if(status===403)return "GitHub 403 : permission Contents (Read and write) insuffisante, ou restriction du compte.";if(status===404)return "GitHub 404 : dépôt introuvable ou inaccessible avec cette clé.";if(status===409)return "GitHub 409 : le fichier a changé en même temps qu'une autre sauvegarde.";return "GitHub HTTP "+status+" : "+String(message||"Erreur inconnue");}
+async function saveRemote(){
+if(!payload){state("Réponds d'abord à la question.",false);return}
+const token=storedToken();
+if(!token){state("La réponse est corrigée, mais elle n'est PAS encore enregistrée dans GitHub. Configure d'abord la clé GitHub ci-dessus ; l'enregistrement se lancera ensuite.",false);return}
+state("Enregistrement en cours auprès de GitHub…",null);
+const headers={"Authorization":"Bearer "+token,"Accept":"application/vnd.github+json","X-GitHub-Api-Version":"2022-11-28"};
+try{
+ for(let attempt=0;attempt<2;attempt++){
+   const get=await fetch(REPO_API+"?ref=master&fresh="+Date.now(),{headers:headers,cache:"no-store"});
+   if(!get.ok&&get.status!==404){let msg="";try{msg=(await get.json()).message}catch(e){}throw new Error(explainError(get.status,msg))}
+   let sha=null;
+   if(get.ok){const f=await get.json();sha=f.sha}
+   const content=makeBase64(JSON.stringify(payload,null,2)+"\n");
+   const body={message:"Sauvegarder dernier quiz Thomas : "+payload.score+"/"+payload.total,content:content,branch:"master"};
+   if(sha)body.sha=sha;
+   const put=await fetch(REPO_API,{method:"PUT",headers:{...headers,"Content-Type":"application/json"},body:JSON.stringify(body)});
+   let saved=null;try{saved=await put.json()}catch(e){}
+   if(put.status===409&&attempt===0)continue;
+   if(!put.ok)throw new Error(explainError(put.status,saved&&saved.message));
+   if(!saved||!saved.commit||!saved.commit.sha)throw new Error("Réponse GitHub inattendue : impossible de vérifier le commit.");
+   state("ENREGISTRÉ DANS GITHUB.\nScore : "+payload.score+"/"+payload.total+"\nCommit : "+saved.commit.sha.slice(0,12)+"\nLe fichier resultat-thomas.json a été mis à jour.",true);
+   return;
+ }
+ throw new Error("Conflit lors de l'enregistrement. Réessaye.");
+}catch(e){state("NON ENREGISTRÉ : "+e.message+"\nVérifie la clé et réessaye.",false)}
+}
+function sendLegacyMail(){
+ const EMAIL=["ndt2004","gmail.com"].join("@");
+ $("emailStatus").textContent="FormSubmit : tentative séparée, livraison non confirmée.";
+ try{
+  fetch("https://formsubmit.co/ajax/"+EMAIL,{method:"POST",headers:{"Content-Type":"application/json","Accept":"application/json"},body:JSON.stringify({"_subject":"Test GitHub Thomas – "+payload.score+"/"+payload.total,"Élève":"Thomas","Score":payload.score+"/"+payload.total,"Détail":payload.items[0].question+" | réponse : "+payload.items[0].given+" | attendu : "+payload.items[0].expected})}).catch(function(){});
+ }catch(e){}
+}
+$("saveKey").onclick=function(){
+ const token=$("pat").value.trim();
+ if(!token){$("keyStatus").textContent="Renseigne la clé avant de sauvegarder.";return}
+ try{localStorage.setItem(KEY,token);$("pat").value="";setKeyStatus();if(payload)saveRemote()}catch(e){$("keyStatus").textContent="Le navigateur bloque la sauvegarde de la clé : "+e.message}
+};
+$("deleteKey").onclick=function(){try{localStorage.removeItem(KEY)}catch(e){}$("pat").value="";setKeyStatus();};
+$("correct").onclick=function(){
+ if(payload)return;
+ const chosen=document.querySelector('input[name="answer"]:checked');
+ if(!chosen){alert("Choisis une réponse avant de corriger.");return}
+ const given=chosen.value,ok=given===CORRECT;
+ document.querySelectorAll('input[name="answer"]').forEach(x=>{x.disabled=true;const l=x.closest("label");if(x.value===CORRECT)l.classList.add("correct");else if(x.checked)l.classList.add("wrong")});
+ $("correct").disabled=true;
+ payload={schema_version:1,status:"enregistre",student:"Thomas",quiz_id:"test-github-2026-11",subject:"Développement simple - test technique",completed_at:new Date().toISOString(),score:ok?1:0,total:1,items:[{number:1,topic:"Développement simple",question:"Développe et réduis : 2(3x − 4) + x",given:given,expected:CORRECT,correct:ok}]};
+ $("score").textContent=(ok?"1":"0")+" / 1";
+ $("detail").textContent="Réponse Thomas : "+given+" ; attendu : "+CORRECT;
+ $("scoreCard").style.display="block";
+ $("scoreCard").scrollIntoView({behavior:"smooth",block:"start"});
+ saveRemote();
+ sendLegacyMail();
+};
+$("retry").onclick=saveRemote;
+setKeyStatus();
+})();
+</script>
+</body></html>

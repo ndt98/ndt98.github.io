@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Thomas – Quiz maths de consolidation</title>
+<style>
+*{box-sizing:border-box}body{margin:0;background:#f5f7fb;color:#182230;font:16px -apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif}main{max-width:740px;margin:auto;padding:16px}
+.card{background:#fff;border:1px solid #dde1e8;border-radius:16px;padding:16px;margin:12px 0}
+h1{font-size:25px;margin:0 0 10px}h2{font-size:22px;margin:0 0 12px}
+.question{font-size:19px;font-weight:750;margin-bottom:12px;line-height:1.4}
+.tag{color:#667085;font-size:13px;font-weight:700;margin-bottom:8px}
+.option{display:block;border:1px solid #d5dae3;border-radius:11px;padding:12px;margin:8px 0}
+.option input{margin-right:10px;transform:scale(1.15)}
+.option.right{background:#e7f6ea;border-color:#85c492}.option.wrong{background:#fdebec;border-color:#e7a6ae}
+.reason{display:none;color:#455468;margin-top:12px;line-height:1.45;font-size:15px}
+button{width:100%;padding:14px;border:0;border-radius:12px;font-weight:800;font-size:17px;background:#172033;color:#fff;margin:8px 0}
+button.secondary{background:#e8ecf2;color:#172033}
+#results{display:none;border:2px solid #172033}
+textarea{width:100%;height:200px;box-sizing:border-box;padding:11px;border:1px solid #bdc5d0;border-radius:9px;font-size:14px;line-height:1.5}
+.small{font-size:14px;color:#6b7280;line-height:1.5}
+</style>
+</head>
+<body><main>
+<section class="card"><h1>Maths 3e – Thomas</h1><p><b>10 questions fixes</b> : 6 développements et 4 exercices sur les nombres premiers.</p><p class="small">Une seule bonne réponse par question. Après correction, le score et le détail restent affichés et peuvent être copiés.</p></section>
+<div id="results" class="card"></div>
+<div id="questions"></div>
+<button type="button" id="correct">Corriger les 10 questions</button>
+<button type="button" id="reset" class="secondary">Recommencer la même série</button>
+</main>
+<script>
+(function(){
+"use strict";
+const Q=[
+{topic:"Développement",q:"Développe et réduis : 2(3x − 4) + x",options:["7x − 8","6x − 8","7x + 8","5x − 8"],answer:"7x − 8",why:"2 × 3x = 6x ; 2 × (−4) = −8 ; puis 6x + x = 7x."},
+{topic:"Développement",q:"Développe et réduis : 4(x + 3) − 2x",options:["2x + 12","6x + 12","2x + 3","4x + 10"],answer:"2x + 12",why:"4x + 12 − 2x = 2x + 12."},
+{topic:"Développement",q:"Développe et réduis : 3(2x − 5) + 2(x + 1)",options:["8x − 13","8x − 17","6x − 13","5x − 13"],answer:"8x − 13",why:"6x − 15 + 2x + 2 = 8x − 13."},
+{topic:"Développement",q:"Développe et réduis : 5(x − 2) − 3(x + 4)",options:["2x − 22","2x + 2","8x − 22","2x − 14"],answer:"2x − 22",why:"5x − 10 − 3x − 12 = 2x − 22."},
+{topic:"Développement",q:"Développe et réduis : −2(3x − 4) + 5x",options:["−x + 8","−x − 8","11x + 8","x + 8"],answer:"−x + 8",why:"−6x + 8 + 5x = −x + 8."},
+{topic:"Développement",q:"Développe et réduis : 2(4x + 1) − (3x − 6)",options:["5x + 8","5x − 4","11x − 4","5x − 8"],answer:"5x + 8",why:"8x + 2 − 3x + 6 = 5x + 8. Le signe moins devant la parenthèse change les deux signes."},
+{topic:"Nombres premiers",q:"Le nombre 91 est-il premier ?",options:["Non, car 91 = 7 × 13","Oui, car il est impair","Non, car 91 = 3 × 30 + 1","Oui, car il finit par 1"],answer:"Non, car 91 = 7 × 13",why:"91 a deux diviseurs strictement compris entre 1 et 91 : 7 et 13."},
+{topic:"Nombres premiers",q:"Laquelle est la décomposition en facteurs premiers de 72 ?",options:["2³ × 3²","2² × 3³","8 × 9","2³ × 3"],answer:"2³ × 3²",why:"72 = 8 × 9 = 2³ × 3². Tous les facteurs sont premiers."},
+{topic:"Nombres premiers",q:"Parmi ces quatre nombres, lequel est premier ?",options:["59","57","63","69"],answer:"59",why:"57 = 3 × 19 ; 63 = 3² × 7 ; 69 = 3 × 23. 59 n'est divisible par aucun nombre premier ≤ √59."},
+{topic:"Fractions",q:"Simplifie au maximum la fraction 90/126.",options:["5/7","7/5","15/21","10/13"],answer:"5/7",why:"90 et 126 se divisent tous deux par 18 : 90/126 = 5/7. Les deux nombres 5 et 7 sont premiers."}
+];
+let done=false;
+const list=document.getElementById("questions"),results=document.getElementById("results");
+function shuffle(arr){const a=arr.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
+function build(){
+done=false;results.style.display="none";results.replaceChildren();list.replaceChildren();
+Q.forEach((x,i)=>{
+ const section=document.createElement("section");section.className="card";
+ const tag=document.createElement("div");tag.className="tag";tag.textContent="Question "+(i+1)+" · "+x.topic;section.appendChild(tag);
+ const q=document.createElement("div");q.className="question";q.textContent=x.q;section.appendChild(q);
+ shuffle(x.options).forEach(value=>{
+  const label=document.createElement("label");label.className="option";
+  const input=document.createElement("input");input.type="radio";input.name="q"+i;input.value=value;
+  label.appendChild(input);label.appendChild(document.createTextNode(value));section.appendChild(label)
+ });
+ const why=document.createElement("div");why.className="reason";why.textContent=x.why;section.appendChild(why);
+ list.appendChild(section)
+})
+}
+document.getElementById("correct").onclick=function(){
+ if(done)return;
+ const answered=[...Q.keys()].map(i=>document.querySelector('input[name="q'+i+'"]:checked'));
+ if(answered.some(v=>!v)){alert("Réponds aux 10 questions avant de corriger.");return}
+ done=true;
+ let score=0;
+ const lines=["QUIZ THOMAS – Consolidation maths 3e",""];
+ Q.forEach((x,i)=>{
+  const chosen=answered[i].value,ok=chosen===x.answer;if(ok)score++;
+  const section=list.children[i];
+  section.querySelectorAll(".option").forEach(l=>{const input=l.querySelector("input");input.disabled=true;if(input.value===x.answer)l.classList.add("right");else if(input.value===chosen)l.classList.add("wrong")});
+  section.querySelector(".reason").style.display="block";
+  lines.push((i+1)+". "+x.q,"Réponse Thomas : "+chosen,"Attendu : "+x.answer,ok?"JUSTE":"ERREUR","")
+ });
+ lines.splice(1,0,"Score : "+score+"/10");
+ results.style.display="block";
+ const h=document.createElement("h2");h.textContent="Résultat : "+score+" / 10";results.appendChild(h);
+ const note=document.createElement("p");note.textContent=score>=9?"Très bien.":score>=7?"Bon travail ; révise les erreurs.":"Les explications sous chaque question permettent de reprendre les erreurs.";results.appendChild(note);
+ const copy=document.createElement("button");copy.type="button";copy.textContent="Copier score et réponses";results.appendChild(copy);
+ const area=document.createElement("textarea");area.readOnly=true;area.value=lines.join("\n");results.appendChild(area);
+ const status=document.createElement("p");status.className="small";status.textContent="Aucune clé GitHub ni sauvegarde automatique.";results.appendChild(status);
+ copy.onclick=async function(){try{await navigator.clipboard.writeText(area.value);copy.textContent="Résultat copié"}catch(e){area.focus();area.select();document.execCommand("copy");copy.textContent="Copie lancée"}};
+ window.scrollTo({top:0,behavior:"smooth"})
+};
+document.getElementById("reset").onclick=build;build();
+})();
+</script>
+</body></html>

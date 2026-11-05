@@ -1,0 +1,18 @@
+<!doctype html><html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><title>Résultat Thomas</title><style>body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;background:#f5f7fb;margin:0;color:#17191d}main{max-width:820px;margin:auto;padding:16px}.card{background:#fff;border:1px solid #ddd;border-radius:16px;padding:16px;margin:12px 0}h1{margin-top:0}.score{font-size:34px;font-weight:800}.bad{background:#fff3f3;border-left:5px solid #c44}.ok{background:#eef8f0;border-left:5px solid #4d9460}.q{font-weight:750;margin-bottom:7px}.ans{line-height:1.5}.muted{color:#666}button{width:100%;padding:13px;border:0;border-radius:12px;background:#172033;color:#fff;font-size:17px;font-weight:700;margin-top:8px}textarea{width:100%;min-height:220px;font-size:14px;line-height:1.45}</style></head><body><main><div id="app" class="card"><h1>Résultat Thomas</h1><p class="muted">Aucun résultat chargé. Ouvre cette page depuis le lien généré à la fin d’un quiz.</p></div></main><script>
+function decode(s){try{return JSON.parse(decodeURIComponent(escape(atob(s.replace(/-/g,'+').replace(/_/g,'/')))))}catch(e){return null}}
+const raw=new URLSearchParams(location.search).get('r');
+const data=raw?decode(raw):null;
+if(data){
+  const app=document.getElementById('app');
+  app.innerHTML='<h1>'+data.title+'</h1><div class="score">'+data.score+'</div><p class="muted">'+data.when+'</p><div id="items"></div><button id="copy">Copier le résultat complet</button><textarea id="txt" readonly></textarea>';
+  const items=document.getElementById('items');
+  data.items.forEach((x,i)=>{
+    const d=document.createElement('div');d.className='card '+(x.ok?'ok':'bad');
+    d.innerHTML='<div class="q">'+(i+1)+'. '+x.q+'</div><div class="ans">Réponse Thomas : <b>'+x.given+'</b><br>Attendu : <b>'+x.expected+'</b></div>';
+    items.appendChild(d)
+  });
+  const text=[data.title,data.score,data.when,'',...data.items.map((x,i)=>(i+1)+'. '+x.q+' | réponse Thomas : '+x.given+' | attendu : '+x.expected)].join('\n');
+  document.getElementById('txt').value=text;
+  document.getElementById('copy').onclick=async()=>{try{await navigator.clipboard.writeText(text);document.getElementById('copy').textContent='Résultat copié'}catch(e){document.getElementById('txt').select();document.execCommand('copy')}};
+}
+</script></body></html>

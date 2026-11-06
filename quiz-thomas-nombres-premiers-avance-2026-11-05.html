@@ -20,7 +20,7 @@ h1{font-size:26px;margin:0 0 9px}h2{font-size:23px;margin:0 0 10px}
 button{background:#172033;color:white;border:0;border-radius:12px;padding:14px;font-weight:750;font-size:17px;width:100%;margin:6px 0}
 button.alt{background:#e8ecf2;color:#172033}
 #result{display:none;border:2px solid #172033}
-textarea{width:100%;height:250px;padding:12px;border:1px solid #bec7d5;border-radius:11px;font-size:14px;line-height:1.5}
+textarea{width:100%;min-height:300px;padding:12px;border:1px solid #bec7d5;border-radius:11px;font-size:14px;line-height:1.5;user-select:text;-webkit-user-select:text}pre{white-space:pre-wrap;overflow-wrap:anywhere;user-select:text;-webkit-user-select:text;font:14px/1.6 -apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;background:#f5f7fb;padding:12px;border-radius:10px}.missed{border:1px solid #e8a7b0;background:#fff1f2;border-radius:11px;padding:12px;margin:8px 0;line-height:1.5}.help{color:#5c6779;font-size:14px;line-height:1.5}
 </style>
 </head>
 <body><main>
@@ -72,7 +72,7 @@ $("correct").onclick=function(){
  const marked=Q.map((x,i)=>document.querySelector('input[name="q'+i+'"]:checked'));
  if(marked.some(x=>!x)){alert("Réponds aux 10 questions avant de corriger.");return}
  corrected=true;
- let score=0;
+ let score=0;const errors=[];
  const lines=["THOMAS – NOMBRES PREMIERS – NIVEAU AVANCÉ",""];
  Q.forEach((x,i)=>{
   const choice=marked[i].value,good=choice===x.a;if(good)score++;
@@ -84,17 +84,49 @@ $("correct").onclick=function(){
   });
   card.querySelector(".explanation").style.display="block";
   lines.push((i+1)+". "+x.q,"Réponse Thomas : "+choice,"Réponse attendue : "+x.a,good?"JUSTE":"ERREUR","")
+  if(!good)errors.push({number:i+1,question:x.q,chosen:choice,expected:x.a,explanation:x.e})
  });
  lines.splice(1,0,"Score : "+score+"/10");
  result.style.display="block";
  const title=document.createElement("h2");title.textContent="Résultat : "+score+" / 10";result.appendChild(title);
  const desc=document.createElement("p");desc.textContent=score>=9?"Excellente maîtrise de cette série avancée.":score>=7?"Bon niveau. Analyse les questions manquées pour progresser.":"Les corrections détaillées ci-dessous indiquent les notions à retravailler.";result.appendChild(desc);
- const copy=document.createElement("button");copy.type="button";copy.textContent="Copier score et réponses";result.appendChild(copy);
- const area=document.createElement("textarea");area.readOnly=true;area.value=lines.join("\n");result.appendChild(area);
- const small=document.createElement("p");small.className="muted";small.textContent="Copie ce résultat et transmets-le pour obtenir un quiz adapté aux erreurs. Aucune clé GitHub ni sauvegarde automatique.";result.appendChild(small);
- copy.onclick=async()=>{
-  try{await navigator.clipboard.writeText(area.value);copy.textContent="Résultat copié"}
-  catch(e){area.focus();area.select();document.execCommand("copy");copy.textContent="Texte sélectionné"}
+ const warning=document.createElement("h3");warning.textContent="Erreurs à travailler : "+errors.length;result.appendChild(warning);
+ if(!errors.length){const p=document.createElement("p");p.textContent="Aucune erreur dans cette série.";result.appendChild(p)}
+ errors.forEach(x=>{
+  const box=document.createElement("div");box.className="missed";
+  const title=document.createElement("strong");title.textContent="Question "+x.number+" — "+x.question;box.appendChild(title);
+  const p=document.createElement("p");p.textContent="Thomas a répondu : "+x.chosen+"\nRéponse correcte : "+x.expected;p.style.whiteSpace="pre-wrap";box.appendChild(p);
+  const explain=document.createElement("p");explain.textContent=x.explanation;box.appendChild(explain);
+  result.appendChild(box)
+ });
+ const fullText=lines.join("\n");
+ const help=document.createElement("p");help.className="help";help.textContent="Pour me transmettre le résultat sur iPhone : utilise d'abord « Partager le résultat » et choisis ChatGPT. Autrement, « Copier » prend uniquement le score et les réponses sélectionnées (pas les quatre propositions).";result.appendChild(help);
+ const share=document.createElement("button");share.type="button";share.textContent="Partager le résultat (iPhone)";result.appendChild(share);
+ const copy=document.createElement("button");copy.type="button";copy.className="alt";copy.textContent="Copier score et réponses";result.appendChild(copy);
+ const notice=document.createElement("p");notice.className="help";notice.setAttribute("aria-live","polite");result.appendChild(notice);
+ const areaLabel=document.createElement("p");areaLabel.textContent="Texte exact à transmettre :";result.appendChild(areaLabel);
+ const area=document.createElement("textarea");area.readOnly=true;area.value=fullText;area.setAttribute("aria-label","Score et réponses de Thomas à transmettre");result.appendChild(area);
+ const visible=document.createElement("pre");visible.textContent=fullText;result.appendChild(visible);
+ function manualCopy(){
+   area.focus();area.select();area.setSelectionRange(0,area.value.length);
+   let copied=false;
+   try{copied=document.execCommand("copy")}catch(e){}
+   if(copied){notice.textContent="Résultat copié : colle-le dans ChatGPT.";copy.textContent="Résultat copié"}
+   else{notice.textContent="Copie automatique indisponible : maintiens le doigt sur le texte affiché ci-dessous pour le sélectionner, puis choisis « Copier »."}
+ }
+ copy.onclick=async function(){
+   if(navigator.clipboard&&navigator.clipboard.writeText){
+     try{await navigator.clipboard.writeText(fullText);notice.textContent="Résultat copié : colle-le dans ChatGPT.";copy.textContent="Résultat copié";return}catch(e){}
+   }
+   manualCopy()
+ };
+ share.onclick=async function(){
+   if(typeof navigator.share==="function"){
+     try{await navigator.share({title:"Résultat du quiz de Thomas",text:fullText});notice.textContent="Résultat partagé.";return}
+     catch(e){if(e&&e.name==="AbortError"){notice.textContent="Partage annulé.";return}}
+   }
+   notice.textContent="Le partage direct n'est pas disponible. Utilise le bouton Copier.";
+   manualCopy()
  };
  window.scrollTo({top:0,behavior:"smooth"})
 };

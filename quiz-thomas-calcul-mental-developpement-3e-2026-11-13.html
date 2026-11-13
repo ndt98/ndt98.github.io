@@ -1,0 +1,166 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Thomas – Calcul mental & développement – 3e</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:#f5f7fb;color:#172033;font:16px -apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif}
+main{max-width:760px;margin:0 auto;padding:16px 15px 36px}
+.card{border:1px solid #dbe1e8;border-radius:16px;background:#fff;padding:17px;margin:12px 0}
+h1{font-size:25px;margin:0 0 10px}h2{font-size:22px;margin:0 0 10px}h3{font-size:18px;margin:6px 0}
+p{line-height:1.48} .muted{color:#687387;font-size:14px;line-height:1.5}
+.tag{color:#687387;font-size:13px;font-weight:750;margin-bottom:7px}
+.question{font-size:19px;font-weight:750;margin:8px 0 12px;line-height:1.45}
+.answer{width:100%;max-width:240px;border:1px solid #b8c3d1;border-radius:11px;padding:13px;font-size:22px;font-weight:650}
+.option{display:block;border:1px solid #d5dce6;border-radius:11px;padding:12px;margin:8px 0;cursor:pointer}
+.option input{margin-right:9px;transform:scale(1.16)}
+.option.right{background:#e6f6ea;border-color:#8fc69e}
+.option.wrong{background:#fff0f1;border-color:#e9a8b0}
+.good{border-left:5px solid #529765;background:#f2faf3}.bad{border-left:5px solid #cd6060;background:#fff4f4}
+.explain{display:none;font-size:14px;color:#566477;line-height:1.5;margin-top:12px}
+button{width:100%;border:0;border-radius:12px;padding:14px;font-size:17px;font-weight:750;background:#172033;color:white;margin:6px 0}
+button.alt{background:#e6eaf1;color:#172033}
+#result{display:none;border:2px solid #172033}
+#wrongList .card{margin:8px 0;padding:12px}
+textarea{width:100%;min-height:220px;padding:11px;border:1px solid #bcc7d7;border-radius:10px;font:14px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;user-select:text;-webkit-user-select:text}
+pre{white-space:pre-wrap;overflow-wrap:anywhere;background:#f4f6fa;padding:12px;border-radius:10px;font:13px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;user-select:text;-webkit-user-select:text}
+.notice{color:#3b556b;font-size:14px;line-height:1.4}
+</style>
+</head>
+<body><main>
+<section class="card">
+<h1>Maths 3e – Thomas</h1>
+<p><b>Calcul mental et développement simple</b></p>
+<p>20 questions fixes : <b>12 opérations de calcul mental</b> et <b>8 développements</b>.</p>
+<p class="muted">Pour le calcul mental, écris le résultat dans la case (virgule ou point acceptés). Pour le développement, coche une réponse. Calculatrice interdite. Durée indicative : 15 à 20 minutes.</p>
+</section>
+<section id="result" class="card" aria-live="polite"></section>
+<div id="questions"></div>
+<button type="button" id="correct">Corriger les 20 questions</button>
+<button type="button" id="reset" class="alt">Recommencer les mêmes questions</button>
+</main>
+<script>
+(function(){
+"use strict";
+const Q=[
+ {type:"mental",topic:"Addition",q:"48 + 37 = ?",ans:85,exp:"48 + 30 + 7 = 85."},
+ {type:"mental",topic:"Soustraction",q:"120 − 68 = ?",ans:52,exp:"120 − 60 − 8 = 52."},
+ {type:"mental",topic:"Multiplication",q:"7 × 8 = ?",ans:56,exp:"7 × 8 = 56."},
+ {type:"mental",topic:"Division",q:"144 ÷ 12 = ?",ans:12,exp:"12 × 12 = 144."},
+ {type:"mental",topic:"Nombres décimaux",q:"3,5 + 2,75 = ?",ans:6.25,exp:"3,50 + 2,75 = 6,25."},
+ {type:"mental",topic:"Nombres décimaux",q:"8,4 − 3,7 = ?",ans:4.7,exp:"8,4 − 3,7 = 4,7."},
+ {type:"mental",topic:"Nombres relatifs",q:"(−6) × (−7) = ?",ans:42,exp:"Le produit de deux nombres négatifs est positif : 6 × 7 = 42."},
+ {type:"mental",topic:"Nombres relatifs",q:"45 ÷ (−5) = ?",ans:-9,exp:"Le quotient d'un positif par un négatif est négatif : −9."},
+ {type:"mental",topic:"Pourcentage",q:"25 % de 80 = ?",ans:20,exp:"25 % représente un quart ; 80 ÷ 4 = 20."},
+ {type:"mental",topic:"Fraction d'une quantité",q:"Les deux tiers de 54 = ?",ans:36,exp:"54 ÷ 3 = 18, puis 18 × 2 = 36."},
+ {type:"mental",topic:"Multiplication",q:"17 × 5 = ?",ans:85,exp:"17 × 10 ÷ 2 = 85."},
+ {type:"mental",topic:"Division décimale",q:"150 ÷ 0,5 = ?",ans:300,exp:"Diviser par 0,5 revient à multiplier par 2 : 300."},
+ {type:"alg",topic:"Distributivité",q:"Développe : 3(x + 4)",choices:["3x + 12","3x + 4","7x + 12","3x − 12"],ans:"3x + 12",exp:"3 × x + 3 × 4 = 3x + 12."},
+ {type:"alg",topic:"Distributivité",q:"Développe : 5(2x − 3)",choices:["10x − 15","10x − 3","7x − 15","10x + 15"],ans:"10x − 15",exp:"5 × 2x = 10x et 5 × (−3) = −15."},
+ {type:"alg",topic:"Signes négatifs",q:"Développe : −2(3x − 4)",choices:["−6x + 8","−6x − 8","6x + 8","−x + 8"],ans:"−6x + 8",exp:"−2 × 3x = −6x et −2 × (−4) = +8."},
+ {type:"alg",topic:"Réduction",q:"Développe et réduis : 4(x − 2) + 3x",choices:["7x − 8","7x + 8","4x − 8","x − 8"],ans:"7x − 8",exp:"4x − 8 + 3x = 7x − 8."},
+ {type:"alg",topic:"Réduction",q:"Développe et réduis : 2(5x + 1) − 3x",choices:["7x + 2","13x + 2","7x + 1","7x − 2"],ans:"7x + 2",exp:"10x + 2 − 3x = 7x + 2."},
+ {type:"alg",topic:"Deux parenthèses",q:"Développe et réduis : 3(2x − 5) + 2(x + 4)",choices:["8x − 7","8x − 23","6x − 7","8x + 7"],ans:"8x − 7",exp:"6x − 15 + 2x + 8 = 8x − 7."},
+ {type:"alg",topic:"Deux parenthèses",q:"Développe et réduis : −3(x + 2) + 5(x − 1)",choices:["2x − 11","2x + 1","−8x − 11","2x − 7"],ans:"2x − 11",exp:"−3x − 6 + 5x − 5 = 2x − 11."},
+ {type:"alg",topic:"Signe devant une parenthèse",q:"Développe et réduis : 2(4x − 3) − (x + 5)",choices:["7x − 11","7x − 1","9x − 11","7x + 1"],ans:"7x − 11",exp:"8x − 6 − x − 5 = 7x − 11."}
+];
+const $=id=>document.getElementById(id);
+const list=$("questions"),result=$("result");let completed=false;
+function shuffle(values){const a=values.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
+function parseNumber(s){
+ const value=String(s).trim().replace(/−/g,"-").replace(/\s/g,"").replace(",",".");
+ if(!/^[+-]?(?:\d+(?:\.\d*)?|\.\d+)$/.test(value))return NaN;
+ return Number(value)
+}
+function render(){
+ completed=false;list.replaceChildren();result.replaceChildren();result.style.display="none";
+ Q.forEach((x,i)=>{
+   const box=document.createElement("section");box.className="card";
+   const tag=document.createElement("div");tag.className="tag";tag.textContent="Question "+(i+1)+" / 20 · "+x.topic;box.appendChild(tag);
+   const stem=document.createElement("div");stem.className="question";stem.textContent=x.q;box.appendChild(stem);
+   if(x.type==="mental"){
+     const input=document.createElement("input");input.type="text";input.inputMode=x.ans<0?"text":"decimal";input.autocomplete="off";input.spellcheck=false;input.className="answer";input.setAttribute("aria-label","Réponse à la question "+(i+1));box.appendChild(input);
+   }else{
+     shuffle(x.choices).forEach(choice=>{
+       const label=document.createElement("label");label.className="option";
+       const radio=document.createElement("input");radio.type="radio";radio.name="q"+i;radio.value=choice;
+       label.appendChild(radio);label.appendChild(document.createTextNode(choice));box.appendChild(label)
+     })
+   }
+   const explain=document.createElement("div");explain.className="explain";explain.textContent="Méthode : "+x.exp;box.appendChild(explain);
+   list.appendChild(box)
+ })
+}
+$("correct").onclick=function(){
+ if(completed)return;
+ const answers=Q.map((x,i)=>{
+  const card=list.children[i];
+  return x.type==="mental"?card.querySelector("input.answer").value.trim():card.querySelector('input[type="radio"]:checked')?.value||""
+ });
+ if(answers.some(x=>x==="")){
+   alert("Réponds aux 20 questions avant la correction.");return
+ }
+ completed=true;let score=0,mental=0,algebra=0;const errors=[];
+ const lines=["THOMAS – CALCUL MENTAL & DÉVELOPPEMENT SIMPLE – 3e",""];
+ Q.forEach((x,i)=>{
+   const card=list.children[i],got=answers[i],expected=String(x.ans).replace(".",","),correct=x.type==="mental"?Number.isFinite(parseNumber(got))&&Math.abs(parseNumber(got)-x.ans)<1e-8:got===x.ans;
+   if(correct){score++;if(x.type==="mental")mental++;else algebra++}
+   else errors.push({i:i+1,q:x.q,got,expected,topic:x.topic,explanation:x.exp});
+   if(x.type==="mental"){
+     const input=card.querySelector("input.answer");input.disabled=true;card.classList.add(correct?"good":"bad")
+   }else{
+     card.querySelectorAll("label.option").forEach(label=>{
+       const radio=label.querySelector("input");radio.disabled=true;
+       if(radio.value===x.ans)label.classList.add("right");
+       else if(radio.value===got)label.classList.add("wrong")
+     })
+   }
+   card.querySelector(".explain").style.display="block";
+   lines.push((i+1)+". ["+x.topic+"] "+x.q,"Réponse Thomas : "+got,"Réponse attendue : "+expected,correct?"JUSTE":"ERREUR","")
+ });
+ lines.splice(1,0,"Score total : "+score+"/20 | Calcul mental : "+mental+"/12 | Développement : "+algebra+"/8");
+ const fullText=lines.join("\n");
+ result.style.display="block";
+ const title=document.createElement("h2");title.textContent="Résultat : "+score+" / 20";result.appendChild(title);
+ const subt=document.createElement("p");subt.textContent="Calcul mental : "+mental+"/12 · Développement : "+algebra+"/8";result.appendChild(subt);
+ const header=document.createElement("h3");header.textContent="Erreurs à revoir : "+errors.length;result.appendChild(header);
+ const wrongList=document.createElement("div");wrongList.id="wrongList";result.appendChild(wrongList);
+ if(!errors.length){const p=document.createElement("p");p.textContent="Toutes les réponses sont justes !";wrongList.appendChild(p)}
+ errors.forEach(error=>{
+  const div=document.createElement("div");div.className="card bad";
+  const h=document.createElement("strong");h.textContent="Q"+error.i+" – "+error.topic+" : "+error.q;div.appendChild(h);
+  const p=document.createElement("p");p.textContent="Thomas : "+error.got+" | Attendu : "+error.expected;div.appendChild(p);
+  const e=document.createElement("p");e.className="muted";e.textContent=error.explanation;div.appendChild(e);wrongList.appendChild(div)
+ });
+ const msg=document.createElement("p");msg.className="muted";msg.textContent="Envoie le résultat directement dans ChatGPT pour obtenir le prochain quiz adapté aux erreurs.";result.appendChild(msg);
+ const share=document.createElement("button");share.textContent="Partager le résultat (iPhone)";share.type="button";result.appendChild(share);
+ const copy=document.createElement("button");copy.textContent="Copier score et réponses";copy.type="button";copy.className="alt";result.appendChild(copy);
+ const feedback=document.createElement("p");feedback.className="notice";feedback.setAttribute("aria-live","polite");result.appendChild(feedback);
+ const label=document.createElement("p");label.textContent="Texte à transmettre :";result.appendChild(label);
+ const area=document.createElement("textarea");area.readOnly=true;area.value=fullText;result.appendChild(area);
+ const visible=document.createElement("pre");visible.textContent=fullText;result.appendChild(visible);
+ function legacyCopy(){
+   area.focus();area.select();area.setSelectionRange(0,area.value.length);
+   let ok=false;try{ok=document.execCommand("copy")}catch(e){}
+   feedback.textContent=ok?"Résultat copié. Colle-le dans ChatGPT.":"Sélectionne le texte ci-dessous et choisis « Copier »."
+ }
+ copy.onclick=async()=>{
+   try{if(!navigator.clipboard?.writeText)throw Error("indisponible");await navigator.clipboard.writeText(fullText);feedback.textContent="Résultat copié. Colle-le dans ChatGPT.";copy.textContent="Résultat copié"}catch(e){legacyCopy()}
+ };
+ share.onclick=async()=>{
+   if(typeof navigator.share==="function"){
+     try{await navigator.share({title:"Quiz de Thomas – Calcul mental et développement",text:fullText});feedback.textContent="Partage effectué.";return}
+     catch(e){if(e&&e.name==="AbortError"){feedback.textContent="Partage annulé.";return}}
+   }
+   legacyCopy()
+ };
+ window.scrollTo({top:0,behavior:"smooth"})
+};
+$("reset").onclick=render;
+render();
+})();
+</script>
+</body>
+</html>

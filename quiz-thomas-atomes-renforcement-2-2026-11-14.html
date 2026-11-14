@@ -1,0 +1,268 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Thomas – Intérieur de l'atome – Quiz renforcement</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:#f5f7fb;color:#172033;font:16px -apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif}
+main{max-width:760px;margin:0 auto;padding:16px 15px 40px}
+.card{background:#fff;border:1px solid #dbe1e8;border-radius:16px;padding:17px;margin:12px 0}
+h1{font-size:25px;margin:0 0 9px}h2{font-size:22px;margin:0 0 10px}h3{font-size:18px;margin:0 0 10px}
+p{line-height:1.48}.muted{color:#687387;font-size:14px;line-height:1.5}
+.tag{font-size:13px;font-weight:750;color:#667085;margin-bottom:7px}
+.question{font-size:19px;font-weight:750;margin:8px 0 12px;line-height:1.4}
+.option{display:block;border:1px solid #d5dce6;border-radius:11px;padding:13px;margin:8px 0;cursor:pointer;line-height:1.45}
+.option input{margin-right:10px;transform:scale(1.18)}
+.option.right{background:#e7f6ea;border-color:#8fc69e}
+.option.wrong{background:#fff0f1;border-color:#e3a4ad}
+.explanation{display:none;margin-top:12px;font-size:14px;color:#55647b;line-height:1.5}
+button{width:100%;border:0;border-radius:12px;padding:14px;font-size:17px;font-weight:750;background:#172033;color:#fff;margin:7px 0}
+button.alt{background:#e7ebf1;color:#172033}
+#result{display:none;border:2px solid #172033}
+.error{border-left:5px solid #d06d75;background:#fff5f6;padding:12px;margin:9px 0;border-radius:10px}
+textarea{width:100%;min-height:225px;padding:11px;border:1px solid #bbc6d6;border-radius:10px;font:14px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;user-select:text;-webkit-user-select:text}
+pre{white-space:pre-wrap;overflow-wrap:anywhere;background:#f4f6fa;border-radius:10px;padding:12px;font:13px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;user-select:text;-webkit-user-select:text}
+.status{color:#42617c;font-size:14px}
+</style>
+</head>
+<body><main>
+<section class="card">
+<h1>Sciences – Thomas – 3e</h1>
+<p><strong>L'intérieur des atomes : modèle planétaire</strong></p>
+<p><b>12 nouvelles questions</b> : 8 questions de théorie ciblées sur la masse et la neutralité électrique, puis 4 applications simples. Niveau légèrement supérieur au premier quiz.</p>
+<p class="muted">Réponds sans regarder le cours. Une seule bonne réponse par question. Le corrigé et le bilan apparaîtront à la fin.</p>
+</section>
+<section id="result" class="card" aria-live="polite"></section>
+<div id="questions"></div>
+<button type="button" id="correct">Corriger les 12 questions</button>
+<button type="button" id="restart" class="alt">Recommencer la même série</button>
+</main>
+<script>
+(function(){
+"use strict";
+const Q=[
+ {
+  "group": "Théorie – masse",
+  "q": "Un neutron n'a aucune charge électrique. Que peut-on dire de sa masse ?",
+  "opts": [
+   "Il possède une masse proche de celle d'un proton",
+   "Il n'a aucune masse",
+   "Il est beaucoup plus léger qu'un électron",
+   "Sa masse est nulle, comme sa charge"
+  ],
+  "ans": "Il possède une masse proche de celle d'un proton",
+  "exp": "Ne pas confondre masse et charge électrique : un neutron est neutre, mais il est lourd, presque comme un proton."
+ },
+ {
+  "group": "Théorie – masse",
+  "q": "Quelles particules représentent presque toute la masse d'un atome ?",
+  "opts": [
+   "Les protons et les neutrons",
+   "Les électrons uniquement",
+   "Les protons et les électrons",
+   "Les neutrons et les électrons"
+  ],
+  "ans": "Les protons et les neutrons",
+  "exp": "La masse est presque entièrement concentrée dans le noyau, composé de protons et de neutrons. Les électrons sont beaucoup plus légers."
+ },
+ {
+  "group": "Théorie – masse",
+  "q": "Quelle particule porte une charge négative et possède une masse très faible ?",
+  "opts": [
+   "L'électron",
+   "Le neutron",
+   "Le proton",
+   "Le nucléon"
+  ],
+  "ans": "L'électron",
+  "exp": "L'électron est chargé négativement et très léger. Le neutron n'a pas de charge, mais il n'est pas sans masse."
+ },
+ {
+  "group": "Théorie – masse",
+  "q": "Le noyau du lithium contient 3 protons et 4 neutrons. Pourquoi sa masse vaut-elle environ 7 u.m.a. ?",
+  "opts": [
+   "Parce que son noyau compte 7 nucléons lourds",
+   "Parce que ses 3 électrons sont les plus lourds",
+   "Parce que ses 4 neutrons ne pèsent rien",
+   "Parce que seul le nombre de protons détermine sa masse"
+  ],
+  "ans": "Parce que son noyau compte 7 nucléons lourds",
+  "exp": "3 protons + 4 neutrons = 7 nucléons. Chacun a une masse proche de 1 u.m.a. ; celle des électrons est négligeable dans ce modèle."
+ },
+ {
+  "group": "Théorie – neutralité",
+  "q": "Un atome neutre possède 8 protons dans son noyau. Combien possède-t-il d'électrons ?",
+  "opts": [
+   "8",
+   "16",
+   "0",
+   "10"
+  ],
+  "ans": "8",
+  "exp": "Chaque proton porte une charge + et chaque électron une charge −. Pour obtenir une charge totale nulle, il faut autant d'électrons que de protons."
+ },
+ {
+  "group": "Théorie – neutralité",
+  "q": "Un atome neutre possède 6 électrons autour de son noyau. Combien son noyau contient-il de protons ?",
+  "opts": [
+   "6",
+   "3",
+   "12",
+   "0"
+  ],
+  "ans": "6",
+  "exp": "Un atome neutre possède autant de protons (+) que d'électrons (−). Le nombre de neutrons n'intervient pas dans la compensation des charges."
+ },
+ {
+  "group": "Théorie – neutralité",
+  "q": "Un atome neutre contient 5 protons et 7 neutrons. Quelle affirmation est juste ?",
+  "opts": [
+   "Il possède 5 électrons et 12 nucléons",
+   "Il possède 7 électrons et 12 nucléons",
+   "Il possède 12 électrons et 5 nucléons",
+   "Il possède 5 électrons et 7 nucléons"
+  ],
+  "ans": "Il possède 5 électrons et 12 nucléons",
+  "exp": "La neutralité impose 5 électrons pour 5 protons. Le nombre de nucléons est 5 + 7 = 12."
+ },
+ {
+  "group": "Théorie – neutralité",
+  "q": "Un atome contient 3 protons, 4 neutrons et 3 électrons. Pourquoi est-il neutre ?",
+  "opts": [
+   "Les charges des 3 protons compensent celles des 3 électrons",
+   "Les 4 neutrons compensent les 3 protons",
+   "Les électrons n'ont pas de charge électrique",
+   "Les neutrons annulent la masse du noyau"
+  ],
+  "ans": "Les charges des 3 protons compensent celles des 3 électrons",
+  "exp": "Trois charges positives et trois charges négatives se compensent. Les neutrons n'ont pas de charge électrique."
+ },
+ {
+  "group": "Application – nucléons",
+  "q": "Un noyau contient 4 protons et 6 neutrons. Combien contient-il de nucléons ?",
+  "opts": [
+   "10",
+   "6",
+   "4",
+   "24"
+  ],
+  "ans": "10",
+  "exp": "Il suffit d'additionner les particules lourdes du noyau : 4 + 6 = 10 nucléons."
+ },
+ {
+  "group": "Application – nombre atomique",
+  "q": "Un atome neutre a le numéro 7 et une masse d'environ 14 u.m.a. Combien contient-il de protons, de neutrons et d'électrons ?",
+  "opts": [
+   "7 protons, 7 neutrons, 7 électrons",
+   "7 protons, 14 neutrons, 7 électrons",
+   "14 protons, 7 neutrons, 14 électrons",
+   "7 protons, 7 neutrons, 14 électrons"
+  ],
+  "ans": "7 protons, 7 neutrons, 7 électrons",
+  "exp": "Numéro 7 : 7 protons. Masse ≈ 14 u.m.a. : 14 nucléons, donc 14 − 7 = 7 neutrons. Atome neutre : 7 électrons."
+ },
+ {
+  "group": "Application – masse",
+  "q": "Un atome contient 9 protons et 10 neutrons. Quelle est sa masse approximative en u.m.a. ?",
+  "opts": [
+   "19 u.m.a.",
+   "9 u.m.a.",
+   "10 u.m.a.",
+   "90 u.m.a."
+  ],
+  "ans": "19 u.m.a.",
+  "exp": "La masse de l'atome est approximativement le nombre de protons et de neutrons : 9 + 10 = 19 u.m.a."
+ },
+ {
+  "group": "Application – bilan",
+  "q": "Un atome neutre possède 11 protons et 12 neutrons. Quelle est la bonne conclusion ?",
+  "opts": [
+   "Il a 11 électrons et 23 nucléons",
+   "Il a 12 électrons et 23 nucléons",
+   "Il a 23 électrons et 11 nucléons",
+   "Il a 11 électrons et 12 nucléons"
+  ],
+  "ans": "Il a 11 électrons et 23 nucléons",
+  "exp": "La neutralité donne 11 électrons. Le noyau contient 11 + 12 = 23 nucléons, donc la masse est proche de 23 u.m.a."
+ }
+]
+const $=id=>document.getElementById(id),items=$("questions"),result=$("result");let finished=false;
+function shuffle(values){const a=values.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
+function render(){
+ finished=false;result.style.display="none";result.replaceChildren();items.replaceChildren();
+ Q.forEach((x,i)=>{
+  const card=document.createElement("section");card.className="card";
+  const tag=document.createElement("div");tag.className="tag";tag.textContent="Question "+(i+1)+"/12 · "+x.group;card.appendChild(tag);
+  const q=document.createElement("div");q.className="question";q.textContent=x.q;card.appendChild(q);
+  shuffle(x.opts).forEach(value=>{
+   const l=document.createElement("label");l.className="option";
+   const input=document.createElement("input");input.type="radio";input.name="q"+i;input.value=value;
+   l.appendChild(input);l.appendChild(document.createTextNode(value));card.appendChild(l)
+  });
+  const exp=document.createElement("div");exp.className="explanation";exp.textContent="À retenir : "+x.exp;card.appendChild(exp);
+  items.appendChild(card)
+ })
+}
+$("correct").onclick=function(){
+ if(finished)return;
+ const selected=Q.map((x,i)=>items.children[i].querySelector('input[type="radio"]:checked'));
+ if(selected.some(x=>!x)){alert("Réponds aux 12 questions avant de corriger.");return}
+ finished=true;
+ let score=0,course=0,application=0;const errors=[];
+ const lines=["THOMAS – L'INTÉRIEUR DES ATOMES – RENFORCEMENT 2",""];
+ Q.forEach((x,i)=>{
+  const chosen=selected[i].value,ok=chosen===x.ans;
+  if(ok){score++;if(i<8)course++;else application++}
+  else errors.push({number:i+1,question:x.q,answer:chosen,expected:x.ans,explanation:x.exp});
+  const card=items.children[i];
+  card.querySelectorAll("label.option").forEach(l=>{
+   const inp=l.querySelector("input");inp.disabled=true;
+   if(inp.value===x.ans)l.classList.add("right");
+   else if(inp.value===chosen)l.classList.add("wrong")
+  });
+  card.querySelector(".explanation").style.display="block";
+  lines.push((i+1)+". ["+x.group+"] "+x.q,"Réponse Thomas : "+chosen,"Réponse attendue : "+x.ans,ok?"JUSTE":"ERREUR","")
+ });
+ lines.splice(1,0,"Score : "+score+"/12 | Théorie : "+course+"/8 | Application : "+application+"/4");
+ const fullText=lines.join("\n");
+ result.style.display="block";
+ const h=document.createElement("h2");h.textContent="Résultat : "+score+" / 12";result.appendChild(h);
+ const p=document.createElement("p");p.textContent="Théorie : "+course+"/8 · Application : "+application+"/4";result.appendChild(p);
+ const sub=document.createElement("h3");sub.textContent="Erreurs à revoir : "+errors.length;result.appendChild(sub);
+ if(!errors.length){const e=document.createElement("p");e.textContent="Toutes les réponses sont correctes.";result.appendChild(e)}
+ errors.forEach(x=>{
+  const d=document.createElement("div");d.className="error";
+  const b=document.createElement("strong");b.textContent="Question "+x.number+" : "+x.question;d.appendChild(b);
+  const p=document.createElement("p");p.textContent="Thomas : "+x.answer+" | Bonne réponse : "+x.expected;d.appendChild(p);
+  const exp=document.createElement("p");exp.className="muted";exp.textContent=x.explanation;d.appendChild(exp);result.appendChild(d)
+ });
+ const info=document.createElement("p");info.className="muted";info.textContent="Partage le bilan dans ChatGPT pour préparer une nouvelle série ciblée sur les notions mal maîtrisées.";result.appendChild(info);
+ const share=document.createElement("button");share.type="button";share.textContent="Partager le résultat (iPhone)";result.appendChild(share);
+ const copy=document.createElement("button");copy.type="button";copy.className="alt";copy.textContent="Copier score et réponses";result.appendChild(copy);
+ const feedback=document.createElement("p");feedback.className="status";feedback.setAttribute("aria-live","polite");result.appendChild(feedback);
+ const label=document.createElement("p");label.textContent="Texte complet à partager :";result.appendChild(label);
+ const area=document.createElement("textarea");area.readOnly=true;area.value=fullText;result.appendChild(area);
+ const visible=document.createElement("pre");visible.textContent=fullText;result.appendChild(visible);
+ function fallbackCopy(){
+  area.focus();area.select();area.setSelectionRange(0,area.value.length);
+  let ok=false;try{ok=document.execCommand("copy")}catch(e){}
+  feedback.textContent=ok?"Résultat copié. Colle-le dans ChatGPT.":"Sélectionne le texte affiché ci-dessous et choisis « Copier »."
+ }
+ copy.onclick=async()=>{
+  try{if(!navigator.clipboard||!navigator.clipboard.writeText)throw Error("non disponible");await navigator.clipboard.writeText(fullText);copy.textContent="Résultat copié";feedback.textContent="Résultat copié. Colle-le dans ChatGPT."}
+  catch(e){fallbackCopy()}
+ };
+ share.onclick=async()=>{
+  if(typeof navigator.share==="function"){
+   try{await navigator.share({title:"Quiz de Thomas – Atomes – renforcement 2",text:fullText});feedback.textContent="Partage terminé.";return}
+   catch(e){if(e&&e.name==="AbortError"){feedback.textContent="Partage annulé.";return}}
+  }
+  fallbackCopy()
+ };
+ window.scrollTo({top:0,behavior:"smooth"})
+};
+$("restart").onclick=render;render();
+})();
+</script></main></body></html>

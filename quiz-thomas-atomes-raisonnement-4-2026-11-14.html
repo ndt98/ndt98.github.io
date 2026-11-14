@@ -1,0 +1,268 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Thomas – Intérieur de l'atome – Raisonnement 4</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:#f5f7fb;color:#172033;font:16px -apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif}
+main{max-width:760px;margin:0 auto;padding:16px 15px 40px}
+.card{background:#fff;border:1px solid #dbe1e8;border-radius:16px;padding:17px;margin:12px 0}
+h1{font-size:25px;margin:0 0 9px}h2{font-size:22px;margin:0 0 10px}h3{font-size:18px;margin:0 0 10px}
+p{line-height:1.48}.muted{color:#687387;font-size:14px;line-height:1.5}
+.tag{font-size:13px;font-weight:750;color:#667085;margin-bottom:7px}
+.question{font-size:19px;font-weight:750;margin:8px 0 12px;line-height:1.4}
+.option{display:block;border:1px solid #d5dce6;border-radius:11px;padding:13px;margin:8px 0;cursor:pointer;line-height:1.45}
+.option input{margin-right:10px;transform:scale(1.18)}
+.option.right{background:#e7f6ea;border-color:#8fc69e}
+.option.wrong{background:#fff0f1;border-color:#e3a4ad}
+.explanation{display:none;margin-top:12px;font-size:14px;color:#55647b;line-height:1.5}
+button{width:100%;border:0;border-radius:12px;padding:14px;font-size:17px;font-weight:750;background:#172033;color:#fff;margin:7px 0}
+button.alt{background:#e7ebf1;color:#172033}
+#result{display:none;border:2px solid #172033}
+.error{border-left:5px solid #d06d75;background:#fff5f6;padding:12px;margin:9px 0;border-radius:10px}
+textarea{width:100%;min-height:225px;padding:11px;border:1px solid #bbc6d6;border-radius:10px;font:14px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;user-select:text;-webkit-user-select:text}
+pre{white-space:pre-wrap;overflow-wrap:anywhere;background:#f4f6fa;border-radius:10px;padding:12px;font:13px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;user-select:text;-webkit-user-select:text}
+.status{color:#42617c;font-size:14px}
+</style>
+</head>
+<body><main>
+<section class="card">
+<h1>Sciences – Thomas – 3e</h1>
+<p><strong>L'intérieur des atomes : modèle planétaire</strong></p>
+<p><b>12 nouvelles questions de raisonnement approfondi</b> : déductions à partir d'indices, schémas à corriger, données incompatibles et défis de logique. Sans vocabulaire non étudié. Durée indicative : 20 à 25 minutes.</p>
+<p class="muted">Réponds sans regarder le cours. Une seule bonne réponse par question. Le corrigé et le bilan apparaîtront à la fin.</p>
+</section>
+<section id="result" class="card" aria-live="polite"></section>
+<div id="questions"></div>
+<button type="button" id="correct">Corriger les 12 questions</button>
+<button type="button" id="restart" class="alt">Recommencer la même série</button>
+</main>
+<script>
+(function(){
+"use strict";
+const Q=[
+ {
+  "group": "Enquête – indices croisés",
+  "q": "Un atome neutre possède 17 grains lourds dans son noyau (protons et neutrons). En comptant aussi ses électrons, il possède 24 particules au total. Quelle est sa composition ?",
+  "ans": "7 protons, 10 neutrons et 7 électrons",
+  "opts": [
+   "7 protons, 10 neutrons et 7 électrons",
+   "10 protons, 7 neutrons et 10 électrons",
+   "7 protons, 17 neutrons et 7 électrons",
+   "8 protons, 9 neutrons et 8 électrons"
+  ],
+  "exp": "Les 17 grains lourds sont dans le noyau. Il reste 24 − 17 = 7 électrons. L'atome étant neutre, il possède 7 protons, puis 17 − 7 = 10 neutrons."
+ },
+ {
+  "group": "Enquête – calcul à rebours",
+  "q": "Un atome neutre contient 29 particules au total (protons, neutrons et électrons), dont 11 neutrons. Quelle est sa masse approximative ?",
+  "ans": "20 u.m.a.",
+  "opts": [
+   "20 u.m.a.",
+   "18 u.m.a.",
+   "29 u.m.a.",
+   "11 u.m.a."
+  ],
+  "exp": "Il reste 29 − 11 = 18 protons et électrons réunis, en nombres égaux : 9 de chaque. Masse ≈ 9 protons + 11 neutrons = 20 u.m.a."
+ },
+ {
+  "group": "Vérifier trois conditions",
+  "q": "Un atome est neutre, sa masse vaut environ 14 u.m.a., et il contient 20 particules au total. Quelle proposition respecte toutes les conditions ?",
+  "ans": "6 protons, 8 neutrons et 6 électrons",
+  "opts": [
+   "6 protons, 8 neutrons et 6 électrons",
+   "7 protons, 7 neutrons et 6 électrons",
+   "6 protons, 8 neutrons et 7 électrons",
+   "8 protons, 6 neutrons et 8 électrons"
+  ],
+  "exp": "La proposition retenue donne 6 protons = 6 électrons, 6 + 8 = 14 u.m.a. et 6 + 8 + 6 = 20 particules. Les autres ne respectent pas au moins une condition."
+ },
+ {
+  "group": "Corriger un schéma",
+  "q": "Un dessin comporte 5 protons rouges, 7 neutrons bleus et 4 électrons verts. On veut représenter un atome neutre de masse proche de 13 u.m.a. Que doit-on changer ?",
+  "ans": "Ajouter un électron et un neutron",
+  "opts": [
+   "Ajouter un électron et un neutron",
+   "Ajouter seulement un électron",
+   "Ajouter seulement un neutron",
+   "Ajouter un proton et un électron"
+  ],
+  "exp": "Il faut 5 électrons pour compenser 5 protons : on ajoute un électron. La masse du noyau est d'abord 5 + 7 = 12 ; on ajoute un neutron pour obtenir environ 13 u.m.a."
+ },
+ {
+  "group": "Comparer deux compositions",
+  "q": "A et B sont des atomes neutres. Le noyau de A contient 8 protons et 10 neutrons ; celui de B contient 9 protons et 9 neutrons. Qui a le plus de neutrons et qui a le plus d'électrons ?",
+  "ans": "A a plus de neutrons ; B a plus d'électrons",
+  "opts": [
+   "A a plus de neutrons ; B a plus d'électrons",
+   "B a plus de neutrons ; A a plus d'électrons",
+   "A a plus de neutrons et plus d'électrons",
+   "B a plus de neutrons et plus d'électrons"
+  ],
+  "exp": "A a 10 neutrons contre 9 pour B. Un atome neutre a autant d'électrons que de protons : A en a 8 et B en a 9."
+ },
+ {
+  "group": "Expérience de pensée",
+  "q": "Sur le dessin d'un atome initialement neutre, on enlève un électron vert sans toucher au noyau. Que devient le bilan des charges et la masse approximative ?",
+  "ans": "Les charges ne se compensent plus ; la masse change très peu",
+  "opts": [
+   "Les charges ne se compensent plus ; la masse change très peu",
+   "L'atome reste neutre ; sa masse diminue d'environ 1 u.m.a.",
+   "L'atome reste neutre ; sa masse augmente d'environ 1 u.m.a.",
+   "Les charges ne se compensent plus ; la masse diminue d'environ 1 u.m.a."
+  ],
+  "exp": "Il manque une charge négative : le dessin n'est plus neutre. La masse d'un électron étant minuscule, enlever un électron ne retire pas 1 u.m.a."
+ },
+ {
+  "group": "Règle à déduire",
+  "q": "Deux atomes neutres ont exactement le même nombre d'électrons, mais leurs masses approximatives sont différentes. Quelle explication est possible ?",
+  "ans": "Ils ont autant de protons, mais des nombres de neutrons différents",
+  "opts": [
+   "Ils ont autant de protons, mais des nombres de neutrons différents",
+   "Ils ont des nombres de protons différents et autant de neutrons",
+   "Ils ont des nombres de protons différents et autant d'électrons",
+   "Ils ont forcément le même nombre de neutrons"
+  ],
+  "exp": "Un atome neutre a autant de protons que d'électrons. Si les nombres d'électrons sont égaux, ceux des protons le sont aussi. La différence de masse vient alors des neutrons."
+ },
+ {
+  "group": "Critiquer un calcul",
+  "q": "Un atome possède 6 protons, 7 neutrons et 6 électrons. Un élève calcule sa masse en faisant 6 + 7 + 6 = 19 u.m.a. Quelle correction est juste ?",
+  "ans": "La masse est proche de 13 u.m.a. : les électrons sont très légers",
+  "opts": [
+   "La masse est proche de 13 u.m.a. : les électrons sont très légers",
+   "La masse est proche de 19 u.m.a. : toutes les particules pèsent pareil",
+   "La masse est proche de 7 u.m.a. : seuls les neutrons comptent",
+   "La masse est proche de 6 u.m.a. : seuls les protons comptent"
+  ],
+  "exp": "On prend principalement la masse des protons et des neutrons : 6 + 7 = 13 u.m.a. environ. Les six électrons ne font pas gagner six unités de masse."
+ },
+ {
+  "group": "Détecter une impossibilité",
+  "q": "Une fiche décrit un atome neutre avec une masse d'environ 16 u.m.a., 10 neutrons et 20 particules au total (protons, neutrons, électrons). Que peux-tu conclure ?",
+  "ans": "Les données sont incompatibles : le total devrait être 22 particules",
+  "opts": [
+   "Les données sont incompatibles : le total devrait être 22 particules",
+   "Les données sont compatibles avec 6 protons et 4 électrons",
+   "Les données sont compatibles avec 10 protons et 6 électrons",
+   "Les données sont incompatibles : la masse devrait être 20 u.m.a."
+  ],
+  "exp": "Une masse de 16 avec 10 neutrons implique 6 protons. L'atome neutre possède donc 6 électrons. Total : 6 + 10 + 6 = 22 particules, pas 20."
+ },
+ {
+  "group": "Comparer trois atomes",
+  "q": "Trois atomes sont neutres : A (7 protons, 7 neutrons), B (7 protons, 9 neutrons) et C (8 protons, 8 neutrons). Quelle phrase est exacte ?",
+  "ans": "B et C ont une masse voisine de 16 u.m.a. mais pas le même nombre d'électrons",
+  "opts": [
+   "B et C ont une masse voisine de 16 u.m.a. mais pas le même nombre d'électrons",
+   "A et B ont une masse voisine de 14 u.m.a. et le même nombre d'électrons",
+   "A et C ont une masse voisine de 15 u.m.a. et le même nombre d'électrons",
+   "B et C possèdent tous les deux 7 électrons"
+  ],
+  "exp": "A : 7 + 7 = 14 u.m.a. B : 7 + 9 = 16 u.m.a. C : 8 + 8 = 16 u.m.a. B a 7 électrons et C en a 8."
+ },
+ {
+  "group": "Énigme – relation entre nombres",
+  "q": "Dans un atome neutre, il y a 2 neutrons de plus que de protons. En comptant toutes les particules (protons + neutrons + électrons), on en trouve 26. Quelle composition est possible ?",
+  "ans": "8 protons, 10 neutrons et 8 électrons",
+  "opts": [
+   "8 protons, 10 neutrons et 8 électrons",
+   "9 protons, 11 neutrons et 9 électrons",
+   "8 protons, 8 neutrons et 10 électrons",
+   "10 protons, 8 neutrons et 10 électrons"
+  ],
+  "exp": "On cherche des protons et des électrons en nombres égaux, avec deux neutrons supplémentaires : 8 + 10 + 8 = 26. Les autres propositions échouent sur le total ou les relations."
+ },
+ {
+  "group": "Défi final – information cachée",
+  "q": "Dans un atome neutre, on compte 20 particules si l'on additionne UNIQUEMENT les protons et les électrons. Le noyau contient aussi 12 neutrons. Quelle est la masse approximative de l'atome ?",
+  "ans": "22 u.m.a.",
+  "opts": [
+   "22 u.m.a.",
+   "32 u.m.a.",
+   "20 u.m.a.",
+   "12 u.m.a."
+  ],
+  "exp": "L'atome est neutre : 20 protons et électrons réunis correspondent à 10 protons et 10 électrons. Avec 12 neutrons, la masse vaut environ 10 + 12 = 22 u.m.a."
+ }
+];
+const $=id=>document.getElementById(id),items=$("questions"),result=$("result");let finished=false;
+function shuffle(values){const a=values.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
+function render(){
+ finished=false;result.style.display="none";result.replaceChildren();items.replaceChildren();
+ Q.forEach((x,i)=>{
+  const card=document.createElement("section");card.className="card";
+  const tag=document.createElement("div");tag.className="tag";tag.textContent="Question "+(i+1)+"/12 · "+x.group;card.appendChild(tag);
+  const q=document.createElement("div");q.className="question";q.textContent=x.q;card.appendChild(q);
+  shuffle(x.opts).forEach(value=>{
+   const l=document.createElement("label");l.className="option";
+   const input=document.createElement("input");input.type="radio";input.name="q"+i;input.value=value;
+   l.appendChild(input);l.appendChild(document.createTextNode(value));card.appendChild(l)
+  });
+  const exp=document.createElement("div");exp.className="explanation";exp.textContent="À retenir : "+x.exp;card.appendChild(exp);
+  items.appendChild(card)
+ })
+}
+$("correct").onclick=function(){
+ if(finished)return;
+ const selected=Q.map((x,i)=>items.children[i].querySelector('input[type="radio"]:checked'));
+ if(selected.some(x=>!x)){alert("Réponds aux 12 questions avant de corriger.");return}
+ finished=true;
+ let score=0,course=0,application=0;const errors=[];
+ const lines=["THOMAS – L'INTÉRIEUR DES ATOMES – RAISONNEMENT 4",""];
+ Q.forEach((x,i)=>{
+  const chosen=selected[i].value,ok=chosen===x.ans;
+  if(ok){score++;if(i<8)course++;else application++}
+  else errors.push({number:i+1,question:x.q,answer:chosen,expected:x.ans,explanation:x.exp});
+  const card=items.children[i];
+  card.querySelectorAll("label.option").forEach(l=>{
+   const inp=l.querySelector("input");inp.disabled=true;
+   if(inp.value===x.ans)l.classList.add("right");
+   else if(inp.value===chosen)l.classList.add("wrong")
+  });
+  card.querySelector(".explanation").style.display="block";
+  lines.push((i+1)+". ["+x.group+"] "+x.q,"Réponse Thomas : "+chosen,"Réponse attendue : "+x.ans,ok?"JUSTE":"ERREUR","")
+ });
+ lines.splice(1,0,"Score : "+score+"/12 | Raisonnement : "+course+"/8 | Défis : "+application+"/4");
+ const fullText=lines.join("\n");
+ result.style.display="block";
+ const h=document.createElement("h2");h.textContent="Résultat : "+score+" / 12";result.appendChild(h);
+ const p=document.createElement("p");p.textContent="Raisonnement : "+course+"/8 · Défis : "+application+"/4";result.appendChild(p);
+ const sub=document.createElement("h3");sub.textContent="Erreurs à revoir : "+errors.length;result.appendChild(sub);
+ if(!errors.length){const e=document.createElement("p");e.textContent="Toutes les réponses sont correctes.";result.appendChild(e)}
+ errors.forEach(x=>{
+  const d=document.createElement("div");d.className="error";
+  const b=document.createElement("strong");b.textContent="Question "+x.number+" : "+x.question;d.appendChild(b);
+  const p=document.createElement("p");p.textContent="Thomas : "+x.answer+" | Bonne réponse : "+x.expected;d.appendChild(p);
+  const exp=document.createElement("p");exp.className="muted";exp.textContent=x.explanation;d.appendChild(exp);result.appendChild(d)
+ });
+ const info=document.createElement("p");info.className="muted";info.textContent="Partage le bilan dans ChatGPT pour préparer une nouvelle série ciblée sur les notions mal maîtrisées.";result.appendChild(info);
+ const share=document.createElement("button");share.type="button";share.textContent="Partager le résultat (iPhone)";result.appendChild(share);
+ const copy=document.createElement("button");copy.type="button";copy.className="alt";copy.textContent="Copier score et réponses";result.appendChild(copy);
+ const feedback=document.createElement("p");feedback.className="status";feedback.setAttribute("aria-live","polite");result.appendChild(feedback);
+ const label=document.createElement("p");label.textContent="Texte complet à partager :";result.appendChild(label);
+ const area=document.createElement("textarea");area.readOnly=true;area.value=fullText;result.appendChild(area);
+ const visible=document.createElement("pre");visible.textContent=fullText;result.appendChild(visible);
+ function fallbackCopy(){
+  area.focus();area.select();area.setSelectionRange(0,area.value.length);
+  let ok=false;try{ok=document.execCommand("copy")}catch(e){}
+  feedback.textContent=ok?"Résultat copié. Colle-le dans ChatGPT.":"Sélectionne le texte affiché ci-dessous et choisis « Copier »."
+ }
+ copy.onclick=async()=>{
+  try{if(!navigator.clipboard||!navigator.clipboard.writeText)throw Error("non disponible");await navigator.clipboard.writeText(fullText);copy.textContent="Résultat copié";feedback.textContent="Résultat copié. Colle-le dans ChatGPT."}
+  catch(e){fallbackCopy()}
+ };
+ share.onclick=async()=>{
+  if(typeof navigator.share==="function"){
+   try{await navigator.share({title:"Quiz de Thomas – Atomes – raisonnement 4",text:fullText});feedback.textContent="Partage terminé.";return}
+   catch(e){if(e&&e.name==="AbortError"){feedback.textContent="Partage annulé.";return}}
+  }
+  fallbackCopy()
+ };
+ window.scrollTo({top:0,behavior:"smooth"})
+};
+$("restart").onclick=render;render();
+})();
+</script></main></body></html>

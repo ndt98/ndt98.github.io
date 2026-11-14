@@ -1,0 +1,136 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Thomas – Intérieur de l'atome – Quiz facile</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:#f5f7fb;color:#172033;font:16px -apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif}
+main{max-width:760px;margin:0 auto;padding:16px 15px 40px}
+.card{background:#fff;border:1px solid #dbe1e8;border-radius:16px;padding:17px;margin:12px 0}
+h1{font-size:25px;margin:0 0 9px}h2{font-size:22px;margin:0 0 10px}h3{font-size:18px;margin:0 0 10px}
+p{line-height:1.48}.muted{color:#687387;font-size:14px;line-height:1.5}
+.tag{font-size:13px;font-weight:750;color:#667085;margin-bottom:7px}
+.question{font-size:19px;font-weight:750;margin:8px 0 12px;line-height:1.4}
+.option{display:block;border:1px solid #d5dce6;border-radius:11px;padding:13px;margin:8px 0;cursor:pointer;line-height:1.45}
+.option input{margin-right:10px;transform:scale(1.18)}
+.option.right{background:#e7f6ea;border-color:#8fc69e}
+.option.wrong{background:#fff0f1;border-color:#e3a4ad}
+.explanation{display:none;margin-top:12px;font-size:14px;color:#55647b;line-height:1.5}
+button{width:100%;border:0;border-radius:12px;padding:14px;font-size:17px;font-weight:750;background:#172033;color:#fff;margin:7px 0}
+button.alt{background:#e7ebf1;color:#172033}
+#result{display:none;border:2px solid #172033}
+.error{border-left:5px solid #d06d75;background:#fff5f6;padding:12px;margin:9px 0;border-radius:10px}
+textarea{width:100%;min-height:225px;padding:11px;border:1px solid #bbc6d6;border-radius:10px;font:14px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;user-select:text;-webkit-user-select:text}
+pre{white-space:pre-wrap;overflow-wrap:anywhere;background:#f4f6fa;border-radius:10px;padding:12px;font:13px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;user-select:text;-webkit-user-select:text}
+.status{color:#42617c;font-size:14px}
+</style>
+</head>
+<body><main>
+<section class="card">
+<h1>Sciences – Thomas – 3e</h1>
+<p><strong>L'intérieur des atomes : modèle planétaire</strong></p>
+<p><b>12 questions faciles</b> : 8 questions de cours puis 4 applications très simples, dont l'atome de lithium.</p>
+<p class="muted">Réponds sans regarder le cours. Une seule bonne réponse par question. Le corrigé et le bilan apparaîtront à la fin.</p>
+</section>
+<section id="result" class="card" aria-live="polite"></section>
+<div id="questions"></div>
+<button type="button" id="correct">Corriger les 12 questions</button>
+<button type="button" id="restart" class="alt">Recommencer la même série</button>
+</main>
+<script>
+(function(){
+"use strict";
+const Q=[
+ {group:"Théorie",q:"Dans le modèle planétaire du cours, qu'est-ce qui joue le rôle du Soleil ?",opts:["Le noyau","Un électron","Un neutron seul","Tous les électrons ensemble"],ans:"Le noyau",exp:"Le noyau est au centre de l'atome, comme le Soleil dans la comparaison du cours."},
+ {group:"Théorie",q:"Dans le cours, les grains lourds ROUGES, chargés positivement, s'appellent…",opts:["Les protons","Les neutrons","Les électrons","Les planètes"],ans:"Les protons",exp:"Les protons se trouvent dans le noyau et portent chacun une charge positive."},
+ {group:"Théorie",q:"Les grains lourds BLEUS du noyau sont…",opts:["Des neutrons sans charge électrique","Des protons positifs","Des électrons négatifs","Des neutrons négatifs"],ans:"Des neutrons sans charge électrique",exp:"Les neutrons sont lourds, sont dans le noyau et ne portent aucune charge électrique."},
+ {group:"Théorie",q:"Dans le modèle du cours, les particules VERTES autour du noyau sont…",opts:["Des électrons de charge négative","Des protons de charge positive","Des neutrons sans charge","Des nucléons positifs"],ans:"Des électrons de charge négative",exp:"Les électrons sont représentés en vert. Ils portent une charge négative."},
+ {group:"Théorie",q:"Dans le modèle planétaire présenté, où se trouvent les électrons ?",opts:["Autour du noyau","À la place des protons dans le noyau","À l'intérieur des neutrons","Uniquement au centre du noyau"],ans:"Autour du noyau",exp:"Dans ce modèle simplifié, les électrons sont représentés autour du noyau, comme des planètes autour du Soleil."},
+ {group:"Théorie",q:"Que compte-t-on quand on donne le nombre de NUCLÉONS d'un atome ?",opts:["Les protons et les neutrons du noyau","Seulement les protons","Seulement les électrons","Les électrons et les neutrons"],ans:"Les protons et les neutrons du noyau",exp:"Le nombre de nucléons est la somme du nombre de protons et du nombre de neutrons."},
+ {group:"Théorie",q:"Pourquoi la masse d'un atome est-elle presque celle de son noyau ?",opts:["Parce que les électrons sont beaucoup plus légers","Parce qu'il n'y a jamais d'électrons","Parce que les neutrons sont sans masse","Parce que les charges électriques ont une grande masse"],ans:"Parce que les électrons sont beaucoup plus légers",exp:"Le cours indique que les électrons ne pèsent presque rien par rapport aux protons et aux neutrons."},
+ {group:"Théorie",q:"Dans un atome électriquement neutre, quelle relation est correcte ?",opts:["Nombre d'électrons = nombre de protons","Nombre d'électrons = nombre de neutrons","Nombre d'électrons = nombre total de nucléons","Nombre de protons = nombre de neutrons"],ans:"Nombre d'électrons = nombre de protons",exp:"Les charges positives des protons sont compensées par autant de charges négatives portées par les électrons."},
+ {group:"Application – lithium",q:"Le lithium du cours est l'atome numéro 3. Combien son noyau contient-il de protons ?",opts:["3","4","7","10"],ans:"3",exp:"Le numéro 3 correspond à 3 protons dans le noyau du lithium."},
+ {group:"Application – lithium",q:"Le lithium du cours est neutre et possède 3 protons. Combien possède-t-il d'électrons ?",opts:["3","4","7","1"],ans:"3",exp:"Pour neutraliser les 3 charges positives, il faut 3 électrons portant chacun une charge négative."},
+ {group:"Application – lithium",q:"Le lithium du cours possède 3 protons et une masse d'environ 7 u.m.a. Combien a-t-il de neutrons ?",opts:["4","3","7","10"],ans:"4",exp:"Les protons et neutrons apportent presque toute la masse : 7 nucléons − 3 protons = 4 neutrons."},
+ {group:"Application facile",q:"Un noyau contient 4 protons et 5 neutrons. Combien contient-il de nucléons au total ?",opts:["9","4","5","1"],ans:"9",exp:"Les nucléons sont tous les protons et neutrons : 4 + 5 = 9."}
+];
+const $=id=>document.getElementById(id),items=$("questions"),result=$("result");let finished=false;
+function shuffle(values){const a=values.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
+function render(){
+ finished=false;result.style.display="none";result.replaceChildren();items.replaceChildren();
+ Q.forEach((x,i)=>{
+  const card=document.createElement("section");card.className="card";
+  const tag=document.createElement("div");tag.className="tag";tag.textContent="Question "+(i+1)+"/12 · "+x.group;card.appendChild(tag);
+  const q=document.createElement("div");q.className="question";q.textContent=x.q;card.appendChild(q);
+  shuffle(x.opts).forEach(value=>{
+   const l=document.createElement("label");l.className="option";
+   const input=document.createElement("input");input.type="radio";input.name="q"+i;input.value=value;
+   l.appendChild(input);l.appendChild(document.createTextNode(value));card.appendChild(l)
+  });
+  const exp=document.createElement("div");exp.className="explanation";exp.textContent="À retenir : "+x.exp;card.appendChild(exp);
+  items.appendChild(card)
+ })
+}
+$("correct").onclick=function(){
+ if(finished)return;
+ const selected=Q.map((x,i)=>items.children[i].querySelector('input[type="radio"]:checked'));
+ if(selected.some(x=>!x)){alert("Réponds aux 12 questions avant de corriger.");return}
+ finished=true;
+ let score=0,course=0,application=0;const errors=[];
+ const lines=["THOMAS – L'INTÉRIEUR DES ATOMES – QUIZ FACILE",""];
+ Q.forEach((x,i)=>{
+  const chosen=selected[i].value,ok=chosen===x.ans;
+  if(ok){score++;if(i<8)course++;else application++}
+  else errors.push({number:i+1,question:x.q,answer:chosen,expected:x.ans,explanation:x.exp});
+  const card=items.children[i];
+  card.querySelectorAll("label.option").forEach(l=>{
+   const inp=l.querySelector("input");inp.disabled=true;
+   if(inp.value===x.ans)l.classList.add("right");
+   else if(inp.value===chosen)l.classList.add("wrong")
+  });
+  card.querySelector(".explanation").style.display="block";
+  lines.push((i+1)+". ["+x.group+"] "+x.q,"Réponse Thomas : "+chosen,"Réponse attendue : "+x.ans,ok?"JUSTE":"ERREUR","")
+ });
+ lines.splice(1,0,"Score : "+score+"/12 | Théorie : "+course+"/8 | Application : "+application+"/4");
+ const fullText=lines.join("\n");
+ result.style.display="block";
+ const h=document.createElement("h2");h.textContent="Résultat : "+score+" / 12";result.appendChild(h);
+ const p=document.createElement("p");p.textContent="Théorie : "+course+"/8 · Application : "+application+"/4";result.appendChild(p);
+ const sub=document.createElement("h3");sub.textContent="Erreurs à revoir : "+errors.length;result.appendChild(sub);
+ if(!errors.length){const e=document.createElement("p");e.textContent="Toutes les réponses sont correctes.";result.appendChild(e)}
+ errors.forEach(x=>{
+  const d=document.createElement("div");d.className="error";
+  const b=document.createElement("strong");b.textContent="Question "+x.number+" : "+x.question;d.appendChild(b);
+  const p=document.createElement("p");p.textContent="Thomas : "+x.answer+" | Bonne réponse : "+x.expected;d.appendChild(p);
+  const exp=document.createElement("p");exp.className="muted";exp.textContent=x.explanation;d.appendChild(exp);result.appendChild(d)
+ });
+ const info=document.createElement("p");info.className="muted";info.textContent="Partage le bilan dans ChatGPT pour préparer une nouvelle série ciblée sur les notions mal maîtrisées.";result.appendChild(info);
+ const share=document.createElement("button");share.type="button";share.textContent="Partager le résultat (iPhone)";result.appendChild(share);
+ const copy=document.createElement("button");copy.type="button";copy.className="alt";copy.textContent="Copier score et réponses";result.appendChild(copy);
+ const feedback=document.createElement("p");feedback.className="status";feedback.setAttribute("aria-live","polite");result.appendChild(feedback);
+ const label=document.createElement("p");label.textContent="Texte complet à partager :";result.appendChild(label);
+ const area=document.createElement("textarea");area.readOnly=true;area.value=fullText;result.appendChild(area);
+ const visible=document.createElement("pre");visible.textContent=fullText;result.appendChild(visible);
+ function fallbackCopy(){
+  area.focus();area.select();area.setSelectionRange(0,area.value.length);
+  let ok=false;try{ok=document.execCommand("copy")}catch(e){}
+  feedback.textContent=ok?"Résultat copié. Colle-le dans ChatGPT.":"Sélectionne le texte affiché ci-dessous et choisis « Copier »."
+ }
+ copy.onclick=async()=>{
+  try{if(!navigator.clipboard||!navigator.clipboard.writeText)throw Error("non disponible");await navigator.clipboard.writeText(fullText);copy.textContent="Résultat copié";feedback.textContent="Résultat copié. Colle-le dans ChatGPT."}
+  catch(e){fallbackCopy()}
+ };
+ share.onclick=async()=>{
+  if(typeof navigator.share==="function"){
+   try{await navigator.share({title:"Quiz de Thomas – L'intérieur des atomes",text:fullText});feedback.textContent="Partage terminé.";return}
+   catch(e){if(e&&e.name==="AbortError"){feedback.textContent="Partage annulé.";return}}
+  }
+  fallbackCopy()
+ };
+ window.scrollTo({top:0,behavior:"smooth"})
+};
+$("restart").onclick=render;render();
+})();
+</script></main></body></html>

@@ -1,0 +1,159 @@
+<!doctype html>
+<html lang="fr"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Thomas – Enquête progressive sur les atomes – Quiz 5</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:#f5f7fb;color:#172033;font:16px -apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif}
+main{max-width:760px;margin:0 auto;padding:16px 15px 45px}
+.card{background:white;border:1px solid #dce2ea;border-radius:17px;padding:18px;margin:13px 0;box-shadow:0 1px 3px #15203508}
+h1{font-size:25px;margin:0 0 8px}h2{font-size:22px;margin:8px 0}h3{font-size:17px;margin:7px 0}
+p{line-height:1.5}
+.muted{color:#697589;font-size:14px}
+.tag{font-size:13px;font-weight:750;color:#647087;margin:0 0 7px}
+.q{font-weight:700;font-size:19px;line-height:1.5;margin:14px 0}
+.option{display:block;padding:13px 12px;border:1px solid #cfd8e4;border-radius:12px;margin:9px 0;line-height:1.43;cursor:pointer}
+.option input{margin-right:9px;transform:scale(1.2)}
+.right{background:#e8f7eb;border-color:#74b286}
+.wrong{background:#fff0f0;border-color:#e3a1a8}
+button{width:100%;border:0;border-radius:12px;padding:14px;font-size:17px;font-weight:750;background:#19243a;color:white;margin:6px 0;cursor:pointer}
+button.alt{background:#e8ecf2;color:#19243a}
+button:disabled{opacity:.55;cursor:not-allowed}
+#feedback{display:none;background:#f6f8fc;border-radius:12px;padding:15px;line-height:1.5;margin-top:12px}
+.progress{height:10px;border-radius:20px;overflow:hidden;background:#e4eaf3}
+#bar{height:100%;width:0;background:#3974c9;transition:width .25s}
+.context{border-left:4px solid #4a78ac;background:#eff5fc;border-radius:0 10px 10px 0;padding:12px 14px;line-height:1.5;font-size:15px;margin:13px 0}
+#final{display:none}
+.err{padding:12px;background:#fff2f3;border-left:4px solid #d46b75;margin:9px 0;border-radius:8px}
+textarea{width:100%;min-height:210px;padding:10px;border:1px solid #b8c7d6;border-radius:10px;font:14px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;user-select:text;-webkit-user-select:text}
+pre{white-space:pre-wrap;overflow-wrap:anywhere;background:#f6f7fa;padding:12px;border-radius:10px;font-size:13px;user-select:text;-webkit-user-select:text}
+[hidden]{display:none!important}
+</style></head>
+<body><main>
+<section class="card">
+<h1>Mission atomes – Thomas</h1>
+<p><b>Quiz n°5 : enquête guidée vers une solution finale</b></p>
+<p class="muted">12 étapes liées entre elles · 20 à 25 minutes · Niveau 3e · Sans calculatrice.</p>
+<p>Tu vas résoudre le dossier d'un premier atome, puis celui d'un second. <b>Une question à la fois</b> : chaque correction t'aidera pour la suivante. Ton score compte tes premières réponses.</p>
+</section>
+<section class="card" id="quiz">
+ <div class="tag" id="count"></div>
+ <div class="progress" aria-label="Progression"><div id="bar"></div></div>
+ <div class="context" id="context"></div>
+ <h2 id="stepTitle"></h2>
+ <div class="q" id="question"></div>
+ <div id="choices"></div>
+ <button type="button" class="alt" id="hintButton">Afficher un indice</button>
+ <p class="muted" id="hintText" hidden></p>
+ <button type="button" id="check">Valider ma réponse</button>
+ <section id="feedback" aria-live="polite"></section>
+ <button type="button" id="next" hidden>Passer à l'étape suivante</button>
+</section>
+<section class="card" id="final">
+ <h2 id="score"></h2><p id="comment"></p>
+ <div id="review"></div>
+ <button type="button" id="share">Partager le résultat (iPhone)</button>
+ <button type="button" class="alt" id="copy">Copier score et réponses</button>
+ <p class="muted" id="copyStatus" aria-live="polite"></p>
+ <p class="muted">Texte complet à transmettre à ChatGPT :</p>
+ <textarea id="fullResult" readonly></textarea>
+ <pre id="fullResultVisible"></pre>
+ <button type="button" class="alt" id="restart">Recommencer la mission</button>
+</section>
+</main>
+<script>
+(function(){
+"use strict";
+const S=[{"part":"A","title":"Dossier A — Retirer les neutrons","q":"L'atome A contient 31 particules au total, dont 13 neutrons. Combien reste-t-il de particules si l'on ne compte pas les neutrons ?","correct":"18 particules","options":["18 particules","13 particules","31 particules","44 particules"],"hint":"Sépare les neutrons du reste des particules.","exp":"On enlève les 13 neutrons du total : 31 − 13 = 18 particules restantes."},{"part":"A","title":"Dossier A — Identifier les particules","q":"Ces 18 particules restantes sont de quelles sortes ?","correct":"Des protons et des électrons","options":["Des protons et des électrons","Seulement des protons","Des neutrons et des électrons","Seulement des électrons"],"hint":"Rappelle-toi les trois sortes de particules étudiées dans le cours.","exp":"On a déjà compté les neutrons séparément. Les 18 autres particules sont donc les protons et les électrons."},{"part":"A","title":"Dossier A — Utiliser la neutralité","q":"L'atome A est électriquement neutre. Comment se répartissent les 18 protons et électrons réunis ?","correct":"9 protons et 9 électrons","options":["9 protons et 9 électrons","18 protons et 0 électron","13 protons et 5 électrons","8 protons et 10 électrons"],"hint":"Dans un atome neutre, les charges positives et négatives doivent se compenser.","exp":"Un atome neutre possède autant de protons que d'électrons. On partage les 18 particules en deux groupes égaux : 18 ÷ 2 = 9."},{"part":"A","title":"Dossier A — Charge du noyau","q":"Le noyau de l'atome A comporte 9 protons et 13 neutrons. Quelle est sa charge électrique totale ?","correct":"+9","options":["+9","+22","+13","0"],"hint":"Les neutrons n'ont aucune charge. Observe seulement les protons.","exp":"Les 9 protons portent chacun une charge +. Les 13 neutrons ne portent aucune charge. Le noyau a donc une charge +9."},{"part":"A","title":"Dossier A — Particules lourdes","q":"Pour estimer la masse de A, combien de particules lourdes faut-il compter dans son noyau ?","correct":"22 particules lourdes","options":["22 particules lourdes","31 particules lourdes","18 particules lourdes","13 particules lourdes"],"hint":"Dans le noyau, les protons et les neutrons sont les particules lourdes.","exp":"Le noyau contient 9 protons et 13 neutrons, soit 9 + 13 = 22 particules lourdes."},{"part":"A","title":"Dossier A — Masse approximative","q":"Quelle est maintenant la masse approximative de l'atome A ?","correct":"22 u.m.a.","options":["22 u.m.a.","31 u.m.a.","18 u.m.a.","13 u.m.a."],"hint":"Les électrons sont très légers : ils comptent dans le total des particules, mais presque pas dans la masse.","exp":"La masse est proche de celle des protons et des neutrons : 9 + 13 = 22 u.m.a. environ. Le total de 31 inclut aussi les 9 électrons."},{"part":"A","title":"Dossier A — Choisir le bon schéma","q":"Quel dessin respecterait toutes les informations retrouvées sur l'atome A ?","correct":"9 rouges et 13 bleues au centre ; 9 vertes autour","options":["9 rouges et 13 bleues au centre ; 9 vertes autour","9 rouges et 13 bleues au centre ; 13 vertes autour","13 rouges et 9 bleues au centre ; 13 vertes autour","9 rouges et 9 bleues au centre ; 13 vertes autour"],"hint":"Rouge = proton, bleu = neutron, vert = électron. Vérifie aussi la neutralité.","exp":"Le noyau de A contient 9 protons rouges et 13 neutrons bleus. Comme il est neutre, il possède 9 électrons verts autour."},{"part":"B","title":"Dossier B — Les électrons","q":"On découvre un second atome B, lui aussi neutre. Il possède 10 protons. Combien possède-t-il d'électrons ?","correct":"10 électrons","options":["10 électrons","12 électrons","22 électrons","9 électrons"],"hint":"Le nombre d'électrons dépend du nombre de protons si l'atome est neutre.","exp":"Puisque B est neutre, les 10 charges positives des protons sont compensées par 10 électrons négatifs."},{"part":"B","title":"Dossier B — Retrouver les neutrons","q":"B a 10 protons et une masse proche de 22 u.m.a., comme A. Combien de neutrons contient son noyau ?","correct":"12 neutrons","options":["12 neutrons","10 neutrons","22 neutrons","32 neutrons"],"hint":"Pour la masse approximative, on additionne protons et neutrons.","exp":"22 − 10 = 12 neutrons. Le noyau de B contient donc 10 protons et 12 neutrons."},{"part":"B","title":"Dossier B — Total des particules","q":"Tu sais maintenant que B possède 10 protons, 12 neutrons et 10 électrons. Combien y a-t-il de particules au total ?","correct":"32 particules","options":["32 particules","22 particules","20 particules","12 particules"],"hint":"Cette fois, la question demande TOUTES les particules, y compris les électrons.","exp":"Le total comprend les trois sortes de particules : 10 + 12 + 10 = 32."},{"part":"Comparaison","title":"Enquête finale — Comprendre la différence","q":"A possède 31 particules au total ; B en possède 32. Pourtant, ils ont une masse approximative identique. Pourquoi ?","correct":"Ils ont chacun 22 protons et neutrons réunis ; B a un électron de plus","options":["Ils ont chacun 22 protons et neutrons réunis ; B a un électron de plus","B est plus lourd car 32 est supérieur à 31","Les électrons et les neutrons n'ont aucune masse","A et B possèdent exactement les mêmes nombres de protons, neutrons et électrons"],"hint":"Compare d'abord les particules lourdes des deux noyaux, puis les électrons.","exp":"A : 9 protons + 13 neutrons = 22, et 9 électrons. B : 10 protons + 12 neutrons = 22, et 10 électrons. Même masse approximative, mais B compte un électron supplémentaire."},{"part":"Comparaison","title":"Mission finale — Faire la synthèse","q":"Quelle conclusion résume CORRECTEMENT les deux dossiers, sans confondre masse et total des particules ?","correct":"A : 9 p, 13 n, 9 e, masse ≈ 22 ; B : 10 p, 12 n, 10 e, masse ≈ 22","options":["A : 9 p, 13 n, 9 e, masse ≈ 22 ; B : 10 p, 12 n, 10 e, masse ≈ 22","A : 9 p, 13 n, 9 e, masse ≈ 31 ; B : 10 p, 12 n, 10 e, masse ≈ 32","A : 9 p, 9 n, 13 e, masse ≈ 18 ; B : 10 p, 10 n, 12 e, masse ≈ 20","A : 13 p, 9 n, 9 e, masse ≈ 22 ; B : 12 p, 10 n, 10 e, masse ≈ 22"],"hint":"Pour chaque atome : vérifie la neutralité, puis additionne uniquement protons et neutrons pour la masse.","exp":"A est neutre car 9 p = 9 e ; sa masse est 9 + 13 = 22 environ. B est neutre car 10 p = 10 e ; sa masse est 10 + 12 = 22 environ. Le total des particules est différent : 31 contre 32."}];
+const $=id=>document.getElementById(id);
+let index=0,answers=[],graded=false,resultText="";
+function shuffle(list){const arr=list.slice();for(let i=arr.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[arr[i],arr[j]]=[arr[j],arr[i]]}return arr}
+function contextFor(part){
+if(part==="A")return "<strong>Dossier A.</strong> Cet atome est neutre. Il contient <b>13 neutrons</b> et <b>31 particules au total</b> (protons + neutrons + électrons).";
+if(part==="B")return "<strong>Dossier B.</strong> Un deuxième atome est neutre. Il possède <b>10 protons</b> et une masse approximative identique à celle de A, soit <b>22 u.m.a.</b>";
+return "<strong>Comparaison finale.</strong> A contient 9 protons, 13 neutrons, 9 électrons. B contient 10 protons, 12 neutrons, 10 électrons.";
+}
+function render(){
+ const s=S[index];graded=false;
+ $("count").textContent="Étape "+(index+1)+" sur "+S.length+" · "+s.part;
+ $("bar").style.width=(100*index/S.length)+"%";
+ $("context").innerHTML=contextFor(s.part);
+ $("stepTitle").textContent=s.title;
+ $("question").textContent=s.q;
+ $("choices").replaceChildren();
+ shuffle(s.options).forEach((txt,j)=>{
+   const label=document.createElement("label");label.className="option";
+   const radio=document.createElement("input");radio.type="radio";radio.name="choice";radio.value=txt;radio.id="choice"+j;
+   label.appendChild(radio);label.appendChild(document.createTextNode(txt));
+   $("choices").appendChild(label);
+ });
+ $("feedback").style.display="none";$("feedback").replaceChildren();
+ $("hintText").textContent=s.hint;$("hintText").hidden=true;$("hintButton").hidden=false;
+ $("check").hidden=false;$("next").hidden=true;
+ $("next").textContent=index===S.length-1?"Voir mon résultat":"Continuer vers l'étape "+(index+2);
+}
+$("hintButton").onclick=()=>{$("hintText").hidden=false;$("hintButton").hidden=true};
+$("check").onclick=()=>{
+ if(graded)return;
+ const el=document.querySelector('input[name="choice"]:checked');
+ if(!el){alert("Choisis une réponse avant de continuer.");return;}
+ graded=true;const s=S[index],given=el.value,ok=given===s.correct;
+ answers.push({n:index+1,title:s.title,q:s.q,got:given,expected:s.correct,ok,exp:s.exp});
+ document.querySelectorAll(".option").forEach(label=>{
+   const radio=label.querySelector("input");radio.disabled=true;
+   if(radio.value===s.correct)label.classList.add("right");
+   else if(radio.value===given)label.classList.add("wrong")
+ });
+ const head=document.createElement("strong");head.textContent=ok?"Bonne réponse !":"À revoir : "+s.correct;
+ const detail=document.createElement("p");detail.textContent=s.exp;
+ $("feedback").append(head,detail);$("feedback").style.display="block";
+ $("check").hidden=true;$("hintButton").hidden=true;$("next").hidden=false;
+};
+$("next").onclick=()=>{
+ if(!graded)return;
+ if(index<S.length-1){index++;render();window.scrollTo({top:0,behavior:"smooth"})}
+ else finish();
+};
+function finish(){
+ const score=answers.filter(x=>x.ok).length;
+ $("quiz").hidden=true;$("final").style.display="block";
+ $("score").textContent="Mission terminée : "+score+" / "+S.length;
+ $("comment").textContent=score===S.length?"Excellent travail : toutes les étapes sont maîtrisées.":score>=10?"Très bon raisonnement : révise surtout les étapes ratées.":"Relis les explications, puis refais la mission pour progresser.";
+ const review=$("review");review.replaceChildren();
+ const faults=answers.filter(x=>!x.ok);
+ if(!faults.length){const p=document.createElement("p");p.textContent="Aucune erreur au premier essai.";review.appendChild(p)}
+ else{
+ const h=document.createElement("h3");h.textContent="Étapes à revoir : "+faults.length;review.appendChild(h);
+ faults.forEach(x=>{
+ const d=document.createElement("div");d.className="err";
+ const t=document.createElement("strong");t.textContent="Étape "+x.n+" – "+x.title;d.appendChild(t);
+ const a=document.createElement("p");a.textContent="Thomas : "+x.got+" | Attendu : "+x.expected;d.appendChild(a);
+ const e=document.createElement("p");e.textContent=x.exp;d.appendChild(e);review.appendChild(d)
+ })
+ }
+ const lines=["THOMAS – ATOMES – ENQUÊTE PROGRESSIVE – QUIZ 5","Score : "+score+"/"+S.length,""];
+ answers.forEach(x=>lines.push(x.n+". ["+x.title+"] "+x.q,"Réponse Thomas : "+x.got,"Réponse attendue : "+x.expected,x.ok?"JUSTE":"ERREUR",""));
+ lines.push("SYNTHÈSE : A = 9 protons, 13 neutrons, 9 électrons ; B = 10 protons, 12 neutrons, 10 électrons. Masse approximative identique (22 u.m.a.).");
+ resultText=lines.join("\n");$("fullResult").value=resultText;$("fullResultVisible").textContent=resultText;
+ $("bar").style.width="100%";window.scrollTo({top:0,behavior:"smooth"});
+}
+function oldCopy(){
+ const area=$("fullResult");area.focus();area.select();area.setSelectionRange(0,area.value.length);
+ let ok=false;try{ok=document.execCommand("copy")}catch(e){}
+ $("copyStatus").textContent=ok?"Résultat copié. Colle-le dans ChatGPT.":"Sélectionne le texte puis choisis Copier.";
+}
+$("copy").onclick=async()=>{
+ try{if(!navigator.clipboard?.writeText)throw Error("unavailable");await navigator.clipboard.writeText(resultText);$("copyStatus").textContent="Résultat copié. Colle-le dans ChatGPT."}
+ catch(e){oldCopy()}
+};
+$("share").onclick=async()=>{
+ if(typeof navigator.share==="function"){
+  try{await navigator.share({title:"Résultat du quiz de Thomas – Atomes n°5",text:resultText});$("copyStatus").textContent="Partage effectué.";return}
+  catch(e){if(e&&e.name==="AbortError"){$("copyStatus").textContent="Partage annulé.";return}}
+ }
+ oldCopy();
+};
+$("restart").onclick=()=>{index=0;answers=[];graded=false;resultText="";$("quiz").hidden=false;$("final").style.display="none";render();window.scrollTo({top:0,behavior:"smooth"})};
+render();
+})();
+</script></body></html>

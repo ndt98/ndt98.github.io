@@ -19,7 +19,7 @@ h1{font-size:1.45rem;margin:0 0 6px} h2{font-size:1.12rem}
 .btn{width:100%;border:0;border-radius:14px;padding:14px;font:inherit;font-weight:850;margin-top:10px}
 .primary{background:#765035;color:#fff}.secondary{background:#eee7df;color:#2d2723}
 .hidden{display:none!important}.score{text-align:center;font-size:3rem;font-weight:850;margin:10px 0}
-.review{border-top:1px solid #eadfd5;padding:12px 0;line-height:1.45}
+.review{border-top:1px solid #eadfd5;padding:14px 0;line-height:1.45}.reviewQ{font-weight:800;margin:5px 0 8px}.reviewAns{margin:3px 0}.reviewExp{margin-top:7px;color:#5e554e}
 .ok{color:#17632e;font-weight:800}.bad{color:#8a2020;font-weight:800}
 .note{background:#f8f4ee;border-radius:12px;padding:12px;margin-top:12px}
 </style>
@@ -113,7 +113,7 @@ function finish(){
  questions.forEach((q,i)=>{
    const ok=answers[q.id]===q.a;
    if(ok)score++; else wrongIds.push(q.id);
-   html+='<div class="review"><div class="'+(ok?'ok':'bad')+'">'+(i+1)+'. '+(ok?'✓':'✗')+' '+(q.a?'Vrai':'Faux')+'</div><div>'+q.e+'</div></div>';
+   html+='<div class="review"><div class="'+(ok?'ok':'bad')+'">'+(i+1)+'. '+(ok?'✓ Bonne réponse':'✗ Erreur')+'</div><div class="reviewQ">'+q.q+'</div><div class="reviewAns"><b>Réponse d’Anne :</b> '+(answers[q.id]?'Vrai':'Faux')+'</div><div class="reviewAns"><b>Bonne réponse :</b> '+(q.a?'Vrai':'Faux')+'</div><div class="reviewExp"><b>Pourquoi :</b> '+q.e+'</div></div>';
  });
  lastScore=score;
  document.getElementById("quiz").classList.add("hidden");

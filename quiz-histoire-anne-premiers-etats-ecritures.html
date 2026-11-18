@@ -131,7 +131,7 @@ function finish(){
 }
 
 document.getElementById("retryWrong").onclick=()=>{
- questions=shuffle(ALL.filter((x,i)=>wrongIds.includes(i)).map((x,i)=>({...x,id:wrongIds[i]})));
+ questions=shuffle(wrongIds.map(id=>({...ALL[id],id})));
  answers={};
  document.getElementById("result").classList.add("hidden");
  document.getElementById("quiz").classList.remove("hidden");

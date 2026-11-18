@@ -1,0 +1,158 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Anne – Premiers États et premières écritures</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:#f4efe7;color:#28231f;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif}
+main{max-width:820px;margin:auto;padding:12px}
+.card{background:#fff;border-radius:18px;padding:18px;margin:12px 0;box-shadow:0 4px 16px #0001}
+h1{font-size:1.45rem;margin:0 0 6px} h2{font-size:1.12rem}
+.muted{color:#6b625b;line-height:1.45}
+.q{padding:16px 0;border-top:1px solid #ece4dc}.q:first-child{border-top:0}
+.statement{font-weight:760;line-height:1.42;margin-bottom:10px}
+.choices{display:flex;gap:10px}
+.choice{flex:1;border:1px solid #d7cbc0;border-radius:13px;padding:13px;background:#fff;font:inherit;font-weight:800}
+.choice.selected{background:#ead8c6;border-color:#765035}
+.btn{width:100%;border:0;border-radius:14px;padding:14px;font:inherit;font-weight:850;margin-top:10px}
+.primary{background:#765035;color:#fff}.secondary{background:#eee7df;color:#2d2723}
+.hidden{display:none!important}.score{text-align:center;font-size:3rem;font-weight:850;margin:10px 0}
+.review{border-top:1px solid #eadfd5;padding:12px 0;line-height:1.45}
+.ok{color:#17632e;font-weight:800}.bad{color:#8a2020;font-weight:800}
+.note{background:#f8f4ee;border-radius:12px;padding:12px;margin-top:12px}
+</style>
+</head>
+<body>
+<main>
+<section class="card">
+<h1>Histoire 6e – Premiers États et premières écritures</h1>
+<div class="muted">Anne • Révision contrôle • niveau soutenu</div>
+<div class="note"><b>Objectif :</b> viser une très bonne note demain. Lis chaque phrase jusqu’au bout : un seul détail peut la rendre fausse.</div>
+</section>
+
+<section class="card" id="quiz"></section>
+
+<section class="card hidden" id="result">
+<div class="muted" style="text-align:center">Résultat</div>
+<div class="score" id="score"></div>
+<div id="message" style="text-align:center"></div>
+<button class="btn secondary" id="retryWrong" type="button">Refaire uniquement mes erreurs</button>
+<button class="btn secondary" id="share" type="button">Partager le résultat</button>
+<button class="btn primary" id="restart" type="button">Nouvelle tentative complète</button>
+<div id="review"></div>
+</section>
+</main>
+
+<script>
+const ALL=[
+{q:"Un État est un territoire indépendant dirigé par un chef qui le gouverne.",a:true,e:"C’est la définition donnée dans le cahier."},
+{q:"Une cité-État est uniquement une ville fortifiée, sans les campagnes qui l’entourent.",a:false,e:"La cité-État comprend une ville fortifiée et les campagnes environnantes ; ses habitants obéissent au même gouvernement et aux mêmes lois."},
+{q:"Un fonctionnaire est une personne qui travaille pour l’État.",a:true,e:"C’est la définition du cours."},
+{q:"Un scribe est seulement un dessinateur chargé de décorer les temples.",a:false,e:"Le scribe est un spécialiste savant de l’écriture et du calcul dans l’Antiquité."},
+{q:"Être polythéiste signifie croire en plusieurs dieux.",a:true,e:"Le polythéisme est la croyance en plusieurs divinités."},
+{q:"Vers 3150 av. J.-C., l’Égypte prend la forme d’un royaume unifié.",a:true,e:"Le cahier indique un royaume égyptien unifié vers 3150 av. J.-C."},
+{q:"Au même moment, la Mésopotamie est déjà un seul royaume unifié dirigé par un unique pharaon.",a:false,e:"La Mésopotamie est alors organisée en plusieurs cités-États, chacune dirigée par un roi et son administration."},
+{q:"Le pharaon est à la tête de l’État égyptien et concentre de grands pouvoirs.",a:true,e:"La carte mentale présente le pharaon comme un chef tout-puissant à la tête de l’État."},
+{q:"Dans l’Égypte ancienne du cours, la majorité des habitants sont des paysans qui cultivent les terres et obéissent au pharaon.",a:true,e:"C’est indiqué dans la carte mentale du cahier."},
+{q:"L’administration sert à gouverner l’État et comprend notamment des fonctionnaires.",a:true,e:"Le cours définit l’administration comme l’ensemble des personnes qui aident au gouvernement d’un État."},
+{q:"La Mésopotamie se situe entre le Nil et la mer Rouge.",a:false,e:"La Mésopotamie est liée au Tigre et à l’Euphrate ; le Nil traverse l’Égypte."},
+{q:"Le Tigre et l’Euphrate sont deux fleuves associés à la Mésopotamie.",a:true,e:"Ils figurent sur la carte du Croissant fertile et doivent être placés sur la carte."},
+{q:"La mer Méditerranée et la mer Rouge font partie des repères géographiques à savoir placer pour le contrôle.",a:true,e:"Elles apparaissent explicitement dans la fiche de révision."},
+{q:"Les premiers signes d’écriture apparaissent d’abord en Égypte, puis seulement plus tard en Mésopotamie.",a:false,e:"Le cours indique que l’écriture naît en Mésopotamie vers 3500 av. J.-C., d’abord sous forme de pictogrammes ; l’Égypte développe les hiéroglyphes à la même période."},
+{q:"Un pictogramme est un dessin qui représente un objet ou une idée.",a:true,e:"C’est la définition écrite dans le cahier."},
+{q:"L’écriture cunéiforme est composée de signes en forme de clous ou de coins.",a:true,e:"Le cahier relie cunéiforme au latin cuneus, « clou », avec des signes en forme de clous ou de coins."},
+{q:"Les hiéroglyphes sont une écriture de Mésopotamie écrite uniquement sur des tablettes d’argile.",a:false,e:"Les hiéroglyphes sont égyptiens ; le document montre notamment leur présence sur des murs de tombeaux."},
+{q:"L’écriture sert seulement à raconter des histoires religieuses et n’a aucun rôle dans le commerce ou le gouvernement.",a:false,e:"Le cours indique qu’elle sert aussi à garder la trace des échanges, des activités agricoles, à fixer des lois et à organiser la vie de l’État."},
+{q:"Fixer des lois par écrit peut aider un souverain à gouverner un territoire.",a:true,e:"Le cahier précise que l’écriture permet de fixer des lois qui organisent la vie au sein de l’État."},
+{q:"Dans le cours, l’apparition de l’écriture marque l’entrée des hommes dans l’Histoire.",a:true,e:"La leçon conclut : avec l’écriture, les hommes sont entrés dans l’Histoire."}
+];
+
+function shuffle(a){
+ a=[...a];
+ for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}
+ return a;
+}
+let questions=shuffle(ALL.map((x,i)=>({...x,id:i})));
+let answers={};
+let wrongIds=[];
+let lastScore=0;
+
+function draw(){
+ const box=document.getElementById("quiz");
+ box.innerHTML="";
+ questions.forEach((q,i)=>{
+   const d=document.createElement("div");
+   d.className="q";
+   const v=answers[q.id];
+   d.innerHTML='<div class="statement">'+(i+1)+'. '+q.q+'</div><div class="choices">'+
+   '<button type="button" class="choice '+(v===true?'selected':'')+'" data-id="'+q.id+'" data-v="true">Vrai</button>'+
+   '<button type="button" class="choice '+(v===false?'selected':'')+'" data-id="'+q.id+'" data-v="false">Faux</button></div>';
+   box.appendChild(d);
+ });
+ const b=document.createElement("button");
+ b.type="button"; b.className="btn primary"; b.textContent="Corriger le quiz"; b.onclick=finish;
+ box.appendChild(b);
+ box.querySelectorAll(".choice").forEach(btn=>{
+   btn.onclick=()=>{
+     answers[Number(btn.dataset.id)]=btn.dataset.v==="true";
+     draw();
+   };
+ });
+}
+
+function finish(){
+ if(questions.some(q=>answers[q.id]===undefined)){
+   alert("Réponds à toutes les affirmations avant de corriger.");
+   return;
+ }
+ let score=0;
+ wrongIds=[];
+ let html="<h2>Correction détaillée</h2>";
+ questions.forEach((q,i)=>{
+   const ok=answers[q.id]===q.a;
+   if(ok)score++; else wrongIds.push(q.id);
+   html+='<div class="review"><div class="'+(ok?'ok':'bad')+'">'+(i+1)+'. '+(ok?'✓':'✗')+' '+(q.a?'Vrai':'Faux')+'</div><div>'+q.e+'</div></div>';
+ });
+ lastScore=score;
+ document.getElementById("quiz").classList.add("hidden");
+ document.getElementById("result").classList.remove("hidden");
+ document.getElementById("score").textContent=score+" / "+questions.length;
+ document.getElementById("message").textContent=
+   score===questions.length?"Parfait. Tu maîtrises les points essentiels du contrôle.":
+   score>=18?"Excellent niveau. Revois seulement les quelques pièges restants.":
+   score>=16?"Très bon niveau. Refaire les erreurs devrait suffire pour consolider.":
+   score>=13?"Bon niveau, mais il reste plusieurs notions à sécuriser ce soir.":
+   "Il faut refaire les erreurs puis retenter le quiz complet.";
+ document.getElementById("retryWrong").style.display=wrongIds.length?"block":"none";
+ document.getElementById("review").innerHTML=html;
+ window.scrollTo(0,0);
+}
+
+document.getElementById("retryWrong").onclick=()=>{
+ questions=shuffle(ALL.filter((x,i)=>wrongIds.includes(i)).map((x,i)=>({...x,id:wrongIds[i]})));
+ answers={};
+ document.getElementById("result").classList.add("hidden");
+ document.getElementById("quiz").classList.remove("hidden");
+ draw(); window.scrollTo(0,0);
+};
+
+document.getElementById("restart").onclick=()=>{
+ questions=shuffle(ALL.map((x,i)=>({...x,id:i})));
+ answers={}; wrongIds=[];
+ document.getElementById("result").classList.add("hidden");
+ document.getElementById("quiz").classList.remove("hidden");
+ draw(); window.scrollTo(0,0);
+};
+
+document.getElementById("share").onclick=async()=>{
+ const text="Anne – Premiers États et premières écritures : "+lastScore+"/"+questions.length;
+ if(navigator.share){try{await navigator.share({title:"Résultat quiz histoire",text});}catch(e){}}
+ else alert(text);
+};
+
+draw();
+</script>
+</body>
+</html>

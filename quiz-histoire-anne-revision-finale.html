@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Anne – Révision finale Histoire 6e</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:#f4efe7;color:#28231f;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif}
+main{max-width:820px;margin:auto;padding:12px}
+.card{background:#fff;border-radius:18px;padding:18px;margin:12px 0;box-shadow:0 4px 16px #0001}
+h1{font-size:1.45rem;margin:0 0 6px}
+.muted{color:#6b625b;line-height:1.45}
+.note{background:#f8f4ee;border-radius:12px;padding:12px;margin-top:12px}
+.q{padding:16px 0;border-top:1px solid #ece4dc}.q:first-child{border-top:0}
+.tag{display:inline-block;padding:4px 8px;border-radius:999px;background:#eee7df;color:#5e554e;font-size:.76rem;font-weight:800;margin-bottom:7px}
+.statement{font-weight:780;line-height:1.42;margin-bottom:10px}
+.choices{display:grid;gap:8px}
+.choice{border:1px solid #d7cbc0;border-radius:13px;padding:12px;background:#fff;font:inherit;text-align:left}
+.choice.selected{background:#ead8c6;border-color:#765035}
+.btn{width:100%;border:0;border-radius:14px;padding:14px;font:inherit;font-weight:850;margin-top:10px}
+.primary{background:#765035;color:#fff}.secondary{background:#eee7df;color:#2d2723}
+.hidden{display:none!important}.score{text-align:center;font-size:3rem;font-weight:850;margin:10px 0}
+.review{border-top:1px solid #eadfd5;padding:14px 0;line-height:1.45}
+.reviewQ{font-weight:800;margin:5px 0 8px}.reviewAns{margin:3px 0}.reviewExp{margin-top:7px;color:#5e554e}
+.ok{color:#17632e;font-weight:800}.bad{color:#8a2020;font-weight:800}
+</style>
+</head>
+<body>
+<main>
+<section class="card">
+<h1>Histoire 6e – Révision finale</h1>
+<div class="muted">Premiers États et premières écritures de l’Orient ancien • 20 questions</div>
+<div class="note"><b>Objectif :</b> vérifier les notions exigées par la fiche du professeur : définitions, premiers États, écritures, dates, rôle de l’écriture et repères géographiques.</div>
+</section>
+
+<section class="card" id="quiz"></section>
+
+<section class="card hidden" id="result">
+<div class="muted" style="text-align:center">Résultat</div>
+<div class="score" id="score"></div>
+<div id="message" style="text-align:center"></div>
+<button class="btn secondary" id="retryWrong" type="button">Refaire uniquement mes erreurs</button>
+<button class="btn primary" id="restart" type="button">Nouvelle tentative complète</button>
+<div id="review"></div>
+</section>
+</main>
+
+<script>
+const ALL=[
+{cat:"DÉFINITION",q:"Quelle définition correspond exactement à un État ?",o:["Un territoire indépendant dirigé par un chef qui le gouverne.","Une ville fortifiée entourée de campagnes.","L’ensemble des personnes qui travaillent pour le roi.","Un territoire où tous les habitants ont la même religion."],a:0,e:"Le cahier définit l’État comme un territoire indépendant dirigé par un chef qui le gouverne."},
+{cat:"DÉFINITION",q:"Quelle définition correspond à une cité-État ?",o:["Un territoire comprenant une ville fortifiée et les campagnes qui l’entourent, dont les habitants obéissent au même gouvernement et aux mêmes lois.","Une ville seule, sans campagne, dirigée par un pharaon.","Un ensemble de plusieurs royaumes placés sous un seul chef.","Une administration composée uniquement de scribes."],a:0,e:"La cité-État comprend la ville fortifiée et les campagnes qui l’entourent ; ses habitants obéissent au même gouvernement et aux mêmes lois."},
+{cat:"DÉFINITION",q:"Un fonctionnaire est une personne qui travaille pour l’État.",o:["Vrai","Faux"],a:0,e:"C’est la définition exacte du cahier."},
+{cat:"DÉFINITION",q:"Quelle définition correspond à l’administration ?",o:["L’ensemble des personnes qui aident au gouvernement d’un État.","L’ensemble des terres cultivées par les paysans.","L’ensemble des lois religieuses d’un royaume.","Le territoire gouverné par un roi."],a:0,e:"Le cahier définit l’administration comme l’ensemble des personnes qui aident au gouvernement d’un État."},
+{cat:"DÉFINITION",q:"Le scribe est un personnage savant spécialiste de l’écriture et du calcul dans l’Antiquité.",o:["Vrai","Faux"],a:0,e:"Cette formulation reprend la définition inscrite dans le cahier."},
+{cat:"DÉFINITION",q:"Que signifie « polythéiste » ?",o:["Croire en plusieurs dieux.","Croire en un seul dieu.","Ne croire en aucun dieu.","Croire uniquement au pharaon."],a:0,e:"Le polythéisme est la croyance en plusieurs dieux."},
+{cat:"PREMIERS ÉTATS",q:"Vers quelle date l’Égypte prend-elle la forme d’un royaume unifié ?",o:["Vers 3500 av. J.-C.","Vers 3300 av. J.-C.","Vers 3150 av. J.-C.","Vers 2600 av. J.-C."],a:2,e:"Le cahier indique un royaume égyptien unifié vers 3150 av. J.-C."},
+{cat:"PREMIERS ÉTATS",q:"Au même moment, la Mésopotamie est organisée en une multitude de cités-États.",o:["Vrai","Faux"],a:0,e:"La leçon oppose l’Égypte unifiée à la multitude de cités-États mésopotamiennes."},
+{cat:"ÉGYPTE",q:"Dans la carte mentale du cours, comment est présenté le pharaon ?",o:["Comme le chef tout-puissant à la tête de l’État.","Comme un simple scribe parmi les autres fonctionnaires.","Comme un roi soumis aux cités-États mésopotamiennes.","Comme un paysan chargé de cultiver les terres."],a:0,e:"La carte mentale présente le pharaon comme un chef tout-puissant à la tête de l’État."},
+{cat:"ÉGYPTE",q:"La majorité des habitants de l’Égypte ancienne sont présentés dans le cours comme des paysans.",o:["Vrai","Faux"],a:0,e:"La carte mentale indique que la majorité des Égyptiens sont des paysans qui cultivent les terres et obéissent au pharaon."},
+{cat:"ÉCRITURES",q:"Qu’est-ce qu’un pictogramme ?",o:["Un dessin qui représente un objet ou une idée.","Un signe en forme de clou ou de coin.","Une lettre de notre alphabet.","Un dessin représentant seulement un dieu."],a:0,e:"Le cahier définit le pictogramme comme un dessin qui représente un objet ou une idée."},
+{cat:"ÉCRITURES",q:"Comment reconnaît-on l’écriture cunéiforme dans le cours ?",o:["À ses signes en forme de clou ou de coin.","À ses grandes lettres rondes.","À ses images représentant seulement des dieux.","À son utilisation exclusive sur les pyramides."],a:0,e:"Le cunéiforme est composé de signes en forme de clou ou de coin."},
+{cat:"ÉCRITURES",q:"Les hiéroglyphes sont des caractères formés d’images pouvant représenter un personnage, un objet, une action ou un son.",o:["Vrai","Faux"],a:0,e:"C’est la définition donnée dans le cahier."},
+{cat:"DATES",q:"Selon la leçon, vers quelle date l’écriture naît-elle en Mésopotamie ?",o:["Vers 5000 av. J.-C.","Vers 3500 av. J.-C.","Vers 3150 av. J.-C.","Vers 2600 av. J.-C."],a:1,e:"La leçon écrite indique que l’écriture naît en Mésopotamie vers 3500 av. J.-C. Cette question suit la leçon, et non la date différente notée dans un autre tableau."},
+{cat:"DATES",q:"Quel ordre est correct d’après le tableau étudié et la leçon ?",o:["Cunéiforme vers 3300 → hiéroglyphes vers 3200 → royaume égyptien unifié vers 3150 av. J.-C.","Hiéroglyphes vers 3300 → cunéiforme vers 3200 → royaume unifié vers 3150 av. J.-C.","Royaume unifié vers 3500 → cunéiforme vers 3300 → hiéroglyphes vers 3150 av. J.-C.","Les trois événements sont datés de la même année."],a:0,e:"Les documents donnent environ 3300 av. J.-C. pour le cunéiforme, 3200 pour les hiéroglyphes et la leçon donne 3150 pour l’unification de l’Égypte."},
+{cat:"RÔLE DE L’ÉCRITURE",q:"L’écriture permet de conserver la trace des échanges et des activités agricoles.",o:["Vrai","Faux"],a:0,e:"C’est l’un des rôles indiqués dans le cahier."},
+{cat:"RÔLE DE L’ÉCRITURE",q:"Quel autre rôle de l’écriture est donné dans la leçon ?",o:["Fixer des lois qui organisent la vie au sein de l’État.","Empêcher les villes de commercer.","Remplacer toutes les activités agricoles.","Supprimer les gouvernements."],a:0,e:"La leçon indique que l’écriture fixe des lois qui permettent d’organiser la vie au sein de l’État."},
+{cat:"GÉOGRAPHIE",q:"Quels deux fleuves sont associés à la Mésopotamie sur la carte ?",o:["Le Tigre et l’Euphrate.","Le Nil et le Tigre.","Le Nil et l’Euphrate.","Le Nil et la mer Rouge."],a:0,e:"La carte du cours situe la Mésopotamie autour du Tigre et de l’Euphrate."},
+{cat:"GÉOGRAPHIE",q:"Quel grand fleuve traverse l’Égypte ?",o:["Le Nil.","Le Tigre.","L’Euphrate.","La mer Rouge."],a:0,e:"Le Nil traverse l’Égypte."},
+{cat:"GÉOGRAPHIE",q:"La mer Rouge se situe à l’est de l’Égypte et la mer Méditerranée au nord.",o:["Vrai","Faux"],a:0,e:"Ces deux positions correspondent à la carte du cours."}
+];
+
+function shuffle(a){a=[...a];for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
+let questions=shuffle(ALL.map((x,i)=>({...x,id:i}))), answers={}, wrongIds=[];
+
+function draw(){
+ const box=document.getElementById("quiz"); box.innerHTML="";
+ questions.forEach((q,i)=>{
+   const d=document.createElement("div"); d.className="q";
+   d.innerHTML='<div class="tag">'+q.cat+'</div><div class="statement">'+(i+1)+'. '+q.q+'</div><div class="choices"></div>';
+   const ch=d.querySelector(".choices");
+   q.o.forEach((opt,j)=>{
+     const b=document.createElement("button"); b.type="button"; b.className="choice"+(answers[q.id]===j?" selected":""); b.textContent=opt;
+     b.onclick=()=>{answers[q.id]=j;draw();};
+     ch.appendChild(b);
+   });
+   box.appendChild(d);
+ });
+ const b=document.createElement("button"); b.type="button"; b.className="btn primary"; b.textContent="Corriger le quiz"; b.onclick=finish; box.appendChild(b);
+}
+
+function finish(){
+ if(questions.some(q=>answers[q.id]===undefined)){alert("Réponds à toutes les questions avant de corriger.");return;}
+ let score=0; wrongIds=[]; let html="<h2>Correction détaillée</h2>";
+ questions.forEach((q,i)=>{
+   const user=answers[q.id], ok=user===q.a;
+   if(ok)score++; else wrongIds.push(q.id);
+   html+='<div class="review"><div class="'+(ok?'ok':'bad')+'">'+(i+1)+'. '+(ok?'✓ Bonne réponse':'✗ Erreur')+'</div>'+
+   '<div class="reviewQ">'+q.q+'</div>'+
+   '<div class="reviewAns"><b>Réponse d’Anne :</b> '+q.o[user]+'</div>'+
+   '<div class="reviewAns"><b>Bonne réponse :</b> '+q.o[q.a]+'</div>'+
+   '<div class="reviewExp"><b>Pourquoi :</b> '+q.e+'</div></div>';
+ });
+ document.getElementById("quiz").classList.add("hidden");
+ document.getElementById("result").classList.remove("hidden");
+ document.getElementById("score").textContent=score+" / "+questions.length;
+ document.getElementById("message").textContent=
+  score===20?"Parfait : tout le chapitre est maîtrisé.":
+  score>=18?"Excellent niveau : seulement quelques détails à revoir.":
+  score>=16?"Très bon niveau : refais uniquement les erreurs.":
+  score>=13?"Bon niveau, mais quelques notions doivent encore être consolidées.":
+  "Refais les erreurs puis retente le quiz complet.";
+ document.getElementById("retryWrong").style.display=wrongIds.length?"block":"none";
+ document.getElementById("review").innerHTML=html; window.scrollTo(0,0);
+}
+
+document.getElementById("retryWrong").onclick=()=>{
+ questions=shuffle(wrongIds.map(id=>({...ALL[id],id}))); answers={};
+ document.getElementById("result").classList.add("hidden"); document.getElementById("quiz").classList.remove("hidden"); draw(); window.scrollTo(0,0);
+};
+document.getElementById("restart").onclick=()=>{
+ questions=shuffle(ALL.map((x,i)=>({...x,id:i}))); answers={}; wrongIds=[];
+ document.getElementById("result").classList.add("hidden"); document.getElementById("quiz").classList.remove("hidden"); draw(); window.scrollTo(0,0);
+};
+draw();
+</script>
+</body>
+</html>

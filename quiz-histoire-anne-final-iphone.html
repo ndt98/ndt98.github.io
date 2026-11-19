@@ -1,0 +1,190 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=yes">
+<meta name="theme-color" content="#6f4e37">
+<title>Anne – Quiz final iPhone</title>
+<style>
+:root{--bg:#f4efe8;--card:#fff;--ink:#26221f;--muted:#6c625a;--accent:#6f4e37;--soft:#eee5dc;--line:#e6ddd4;--good:#17632e;--bad:#8a2020}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;font-size:16px;line-height:1.45}
+main{max-width:760px;margin:auto;padding:calc(12px + env(safe-area-inset-top)) 12px calc(110px + env(safe-area-inset-bottom))}
+.card{background:var(--card);border-radius:18px;padding:18px;margin:12px 0;box-shadow:0 4px 16px #00000012}
+h1{font-size:1.45rem;line-height:1.2;margin:0 0 7px}
+.muted{color:var(--muted)}
+.note{margin-top:12px;padding:12px;border-radius:13px;background:#f8f4ef}
+.status{position:sticky;top:calc(8px + env(safe-area-inset-top));z-index:3;background:#fffffff2;backdrop-filter:blur(10px);border:1px solid var(--line);border-radius:14px;padding:10px 12px;margin:10px 0;font-weight:750;text-align:center}
+.q{padding:18px 0;border-top:1px solid var(--line);scroll-margin-top:80px}.q:first-child{border-top:0}
+.tag{display:inline-block;background:var(--soft);border-radius:999px;padding:4px 9px;font-size:.75rem;font-weight:850;color:#5a4d44;margin-bottom:7px}
+.statement{font-size:1.03rem;font-weight:800;margin-bottom:11px}
+.choices{display:grid;gap:9px}
+.choice{width:100%;min-height:52px;border:1px solid #d6c9be;border-radius:14px;padding:12px 13px;background:#fff;color:var(--ink);font:inherit;font-size:16px;text-align:left}
+.choice.selected{background:#ead8c6;border:2px solid var(--accent);padding:11px 12px;font-weight:750}
+.bottom{position:fixed;left:0;right:0;bottom:0;z-index:5;padding:10px 12px calc(10px + env(safe-area-inset-bottom));background:#f4efe8ee;backdrop-filter:blur(12px);border-top:1px solid #ded4ca}
+.bottomInner{max-width:760px;margin:auto}
+.btn{width:100%;min-height:52px;border:0;border-radius:14px;padding:13px 16px;font:inherit;font-size:16px;font-weight:850}
+.primary{background:var(--accent);color:#fff}.secondary{background:var(--soft);color:var(--ink);margin-top:9px}
+.hidden{display:none!important}
+.score{text-align:center;font-size:3rem;font-weight:900;line-height:1;margin:12px 0}
+.review{padding:16px 0;border-top:1px solid var(--line)}
+.review:first-child{border-top:0}.reviewQ{font-weight:850;margin:5px 0 9px}.reviewLine{margin:4px 0}.why{color:#5e554e;margin-top:8px}
+.ok{color:var(--good);font-weight:850}.bad{color:var(--bad);font-weight:850}
+@media(max-width:430px){main{padding-left:10px;padding-right:10px}.card{padding:15px;border-radius:16px}h1{font-size:1.32rem}.statement{font-size:1rem}.choice{min-height:54px}}
+</style>
+</head>
+<body>
+<main>
+<section class="card">
+<h1>Histoire 6e – Dernier quiz avant le contrôle</h1>
+<div class="muted">20 questions • spécialement optimisé pour iPhone</div>
+<div class="note"><b>Attention aux dates :</b> la leçon écrite indique que l’écriture naît en Mésopotamie vers 3500 av. J.-C. ; le tableau des documents note les pictogrammes vers 5000 av. J.-C. Les questions précisent toujours de quel document il s’agit.</div>
+</section>
+
+<div class="status" id="status">0 / 20 réponses</div>
+<section class="card" id="quiz"></section>
+
+<section class="card hidden" id="result">
+<div class="muted" style="text-align:center">Résultat final</div>
+<div class="score" id="score"></div>
+<div id="message" style="text-align:center;font-weight:700"></div>
+<button class="btn secondary" id="retryWrong" type="button">Refaire uniquement mes erreurs</button>
+<button class="btn secondary" id="restart" type="button">Recommencer les 20 questions</button>
+<div id="review"></div>
+</section>
+</main>
+
+<div class="bottom" id="bottomBar">
+  <div class="bottomInner">
+    <button class="btn primary" id="correctBtn" type="button">Corriger le quiz</button>
+  </div>
+</div>
+
+<script>
+const ALL=[
+{cat:"DÉFINITION",q:"Quelle définition de « scribe » correspond exactement au cahier ?",o:["Personnage savant spécialiste de l’écriture et du calcul dans l’Antiquité.","Personne qui travaille pour l’État et qui dirige l’armée.","Personnage religieux spécialiste uniquement des hiéroglyphes.","Chef d’une cité-État chargé de faire appliquer les lois."],a:0,e:"Le cahier définit le scribe comme un personnage savant spécialiste de l’écriture et du calcul dans l’Antiquité."},
+{cat:"DÉFINITION",q:"Quelle définition correspond exactement à « fonctionnaire » ?",o:["Personne qui travaille pour l’État.","Personne qui gouverne seule un État.","Personne qui écrit uniquement sur des tablettes d’argile.","Habitant d’une cité-État."],a:0,e:"Fonctionnaire : personne qui travaille pour l’État."},
+{cat:"DÉFINITION",q:"L’administration est l’ensemble des personnes qui aident au gouvernement d’un État.",o:["Vrai","Faux"],a:0,e:"C’est la définition donnée dans le cahier."},
+{cat:"DÉFINITION",q:"Quelle définition correspond exactement à « État » ?",o:["Territoire indépendant dirigé par un chef qui le gouverne.","Ville fortifiée et campagnes qui l’entourent.","Ensemble des personnes qui aident au gouvernement.","Territoire où vivent uniquement des paysans."],a:0,e:"État : territoire indépendant dirigé par un chef qui le gouverne."},
+{cat:"DÉFINITION",q:"Une cité-État est un territoire comprenant une ville fortifiée et les campagnes qui l’entourent.",o:["Vrai","Faux"],a:0,e:"Oui. Le cahier ajoute que ses habitants obéissent au même gouvernement et aux mêmes lois."},
+{cat:"DÉFINITION",q:"Que signifie « polythéisme » dans le cahier ?",o:["Croyance en plusieurs dieux.","Croyance en un seul dieu.","Croyance en la vie après la mort seulement.","Pouvoir religieux du pharaon."],a:0,e:"Polythéisme : croyance en plusieurs dieux."},
+{cat:"DÉFINITION",q:"Un pictogramme est :",o:["Un dessin qui représente un objet ou une idée.","Un signe obligatoirement en forme de clou.","Une image représentant seulement un son.","Une lettre d’un alphabet."],a:0,e:"Pictogramme : dessin qui représente un objet, une idée."},
+
+{cat:"PREMIERS ÉTATS",q:"Vers quelle date l’Égypte prend-elle la forme d’un royaume unifié selon le cahier ?",o:["Vers 3500 av. J.-C.","Vers 3300 av. J.-C.","Vers 3150 av. J.-C.","Vers 2600 av. J.-C."],a:2,e:"Le cahier indique un royaume unifié vers 3150 av. J.-C."},
+{cat:"PREMIERS ÉTATS",q:"Au même moment, la Mésopotamie voit se développer :",o:["Une multitude de cités-États.","Un seul royaume dirigé par le pharaon.","Une seule ville sans campagnes.","Un empire sans administration."],a:0,e:"La leçon parle du développement d’une multitude de cités-États en Mésopotamie."},
+{cat:"ÉGYPTE",q:"Dans la carte mentale, le pharaon est présenté comme :",o:["À la tête de l’État, considéré comme un dieu et possédant tous les pouvoirs.","Un simple fonctionnaire chargé de l’écriture.","Un paysan qui cultive les terres.","Un roi mésopotamien parmi plusieurs autres."],a:0,e:"La carte mentale dit que le pharaon est à la tête de l’État, considéré comme un dieu et qu’il a tous les pouvoirs."},
+{cat:"ÉGYPTE",q:"Pour diriger l’Égypte, le pharaon est entouré de fonctionnaires.",o:["Vrai","Faux"],a:0,e:"La carte mentale cite notamment les scribes, ministres et vizir parmi les personnes qui l’aident à gouverner."},
+{cat:"ÉGYPTE",q:"D’après la carte mentale, la majorité des Égyptiens sont :",o:["Des paysans qui cultivent les terres du pharaon et lui obéissent.","Des scribes qui écrivent les lois.","Des soldats qui gardent les frontières.","Des prêtres qui dirigent l’administration."],a:0,e:"La carte mentale indique que la majorité des Égyptiens sont des paysans qui cultivent les terres du pharaon et lui obéissent."},
+
+{cat:"ÉCRITURES",q:"Comment reconnaît-on l’écriture cunéiforme ?",o:["À ses signes en forme de clou ou de coin.","À ses images représentant uniquement des animaux.","À ses lettres identiques à notre alphabet.","À ses signes obligatoirement peints sur les tombeaux."],a:0,e:"Le cahier définit le cunéiforme comme une écriture composée de signes en forme de clou ou de coin."},
+{cat:"ÉCRITURES",q:"Les hiéroglyphes peuvent représenter un personnage, un objet, une action ou un son.",o:["Vrai","Faux"],a:0,e:"C’est bien ce que précise la définition inscrite dans le cahier."},
+{cat:"DATES",q:"Dans la leçon écrite, vers quelle date l’écriture naît-elle en Mésopotamie ?",o:["Vers 5000 av. J.-C.","Vers 3500 av. J.-C.","Vers 3200 av. J.-C.","Vers 3150 av. J.-C."],a:1,e:"La leçon écrite indique : l’écriture naît en Mésopotamie vers 3500 av. J.-C."},
+{cat:"DATES",q:"Dans le tableau des documents, quelle date est notée pour les pictogrammes ?",o:["Vers 5000 av. J.-C.","Vers 3500 av. J.-C.","Vers 3300 av. J.-C.","Vers 3200 av. J.-C."],a:0,e:"Le tableau porte « vers 5000 avant J.-C. » pour les pictogrammes. C’est différent du repère général de 3500 indiqué dans la leçon."},
+{cat:"DATES",q:"Dans le tableau, quelles dates sont associées au cunéiforme puis aux hiéroglyphes ?",o:["3300 puis 3200 av. J.-C.","3200 puis 3300 av. J.-C.","3500 puis 3150 av. J.-C.","3150 puis 2600 av. J.-C."],a:0,e:"Le tableau donne environ 3300 av. J.-C. pour le cunéiforme et 3200 av. J.-C. pour les hiéroglyphes."},
+
+{cat:"RÔLE DE L’ÉCRITURE",q:"Lequel de ces usages de l’écriture est indiqué dans la leçon ?",o:["Conserver la trace des échanges et des activités agricoles.","Remplacer le gouvernement des États.","Supprimer la transmission des œuvres littéraires.","Empêcher les lois d’être conservées."],a:0,e:"La leçon explique que l’écriture sert notamment à conserver la trace des échanges et des activités agricoles."},
+{cat:"RÔLE DE L’ÉCRITURE",q:"La leçon indique aussi que l’écriture permet de fixer des lois qui organisent la vie au sein de l’État.",o:["Vrai","Faux"],a:0,e:"C’est l’un des rôles explicitement indiqués dans le cahier."},
+
+{cat:"GÉOGRAPHIE",q:"Quelle association géographique est entièrement correcte ?",o:["Égypte → Nil ; Mésopotamie → Tigre et Euphrate.","Égypte → Tigre ; Mésopotamie → Nil et Euphrate.","Égypte → Euphrate ; Mésopotamie → mer Rouge.","Égypte → Tigre et Euphrate ; Mésopotamie → Nil."],a:0,e:"La carte associe l’Égypte au Nil et la Mésopotamie au Tigre et à l’Euphrate."}
+];
+
+function shuffle(a){
+ a=[...a];
+ for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}
+ return a;
+}
+let questions=shuffle(ALL.map((x,i)=>({...x,id:i})));
+let answers={};
+let wrongIds=[];
+
+const quiz=document.getElementById("quiz");
+const status=document.getElementById("status");
+
+function updateStatus(){
+ const n=questions.filter(q=>answers[q.id]!==undefined).length;
+ status.textContent=n+" / "+questions.length+" réponses";
+}
+function draw(){
+ quiz.innerHTML="";
+ questions.forEach((q,i)=>{
+   const d=document.createElement("div");
+   d.className="q";
+   d.id="q-"+q.id;
+   d.innerHTML='<div class="tag">'+q.cat+'</div><div class="statement">'+(i+1)+'. '+q.q+'</div><div class="choices"></div>';
+   const choices=d.querySelector(".choices");
+   q.o.forEach((opt,j)=>{
+     const b=document.createElement("button");
+     b.type="button";
+     b.className="choice"+(answers[q.id]===j?" selected":"");
+     b.textContent=opt;
+     b.onclick=()=>{answers[q.id]=j; draw();};
+     choices.appendChild(b);
+   });
+   quiz.appendChild(d);
+ });
+ updateStatus();
+}
+
+function finish(){
+ const firstMissing=questions.find(q=>answers[q.id]===undefined);
+ if(firstMissing){
+   document.getElementById("q-"+firstMissing.id).scrollIntoView({behavior:"smooth",block:"center"});
+   setTimeout(()=>alert("Il reste des questions sans réponse."),250);
+   return;
+ }
+ let score=0; wrongIds=[]; let html="<h2>Correction détaillée</h2>";
+ questions.forEach((q,i)=>{
+   const user=answers[q.id];
+   const ok=user===q.a;
+   if(ok)score++; else wrongIds.push(q.id);
+   html+='<div class="review"><div class="'+(ok?'ok':'bad')+'">'+(i+1)+'. '+(ok?'✓ Bonne réponse':'✗ Erreur')+'</div>'+
+   '<div class="reviewQ">'+q.q+'</div>'+
+   '<div class="reviewLine"><b>Réponse d’Anne :</b> '+q.o[user]+'</div>'+
+   '<div class="reviewLine"><b>Bonne réponse :</b> '+q.o[q.a]+'</div>'+
+   '<div class="why"><b>Pourquoi :</b> '+q.e+'</div></div>';
+ });
+ quiz.classList.add("hidden");
+ status.classList.add("hidden");
+ document.getElementById("result").classList.remove("hidden");
+ document.getElementById("correctBtn").classList.add("hidden");
+ document.getElementById("score").textContent=score+" / "+questions.length;
+ document.getElementById("message").textContent=
+  score===20?"Parfait : Anne est prête.":
+  score>=18?"Excellent : seulement quelques détails à revoir.":
+  score>=16?"Très bon niveau : refaire les erreurs devrait suffire.":
+  score>=13?"Bon niveau, mais quelques notions doivent encore être consolidées.":
+  "Refais les erreurs avant une nouvelle tentative complète.";
+ document.getElementById("retryWrong").style.display=wrongIds.length?"block":"none";
+ document.getElementById("review").innerHTML=html;
+ window.scrollTo({top:0,behavior:"smooth"});
+}
+
+document.getElementById("correctBtn").onclick=finish;
+
+document.getElementById("retryWrong").onclick=()=>{
+ questions=shuffle(wrongIds.map(id=>({...ALL[id],id})));
+ answers={};
+ document.getElementById("result").classList.add("hidden");
+ quiz.classList.remove("hidden");
+ status.classList.remove("hidden");
+ document.getElementById("correctBtn").classList.remove("hidden");
+ draw();
+ window.scrollTo({top:0,behavior:"smooth"});
+};
+
+document.getElementById("restart").onclick=()=>{
+ questions=shuffle(ALL.map((x,i)=>({...x,id:i})));
+ answers={};wrongIds=[];
+ document.getElementById("result").classList.add("hidden");
+ quiz.classList.remove("hidden");
+ status.classList.remove("hidden");
+ document.getElementById("correctBtn").classList.remove("hidden");
+ draw();
+ window.scrollTo({top:0,behavior:"smooth"});
+};
+
+draw();
+</script>
+</body>
+</html>

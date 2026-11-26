@@ -34,6 +34,7 @@ pre{white-space:pre-wrap;overflow-wrap:anywhere;padding:12px;border-radius:10px;
 <div><span class="chip">5 questions</span><span class="chip">15 à 20 minutes</span><span class="chip">Sans calculatrice</span></div>
 <p class="muted">Après 4/5 au quiz n°2 : cinq questions ciblées sur les signes, les parenthèses communes et une question finale combinant factorisation et développement. D’après le cahier de Thomas. Une seule réponse par question, correction détaillée à la fin.</p>
 </section>
+<p class="muted" style="margin:12px 3px"><strong>Chronomètre discret :</strong> départ au premier choix de la question 1, arrêt à la validation finale. Il ne s'affiche qu'à la fin.</p>
 <section id="result" class="card" aria-live="polite"></section>
 <div id="questions"></div>
 <button id="grade" type="button">Corriger mes 5 réponses</button>
@@ -44,10 +45,11 @@ pre{white-space:pre-wrap;overflow-wrap:anywhere;padding:12px;border-radius:10px;
 "use strict";
 const Q=[{"topic":"Signes devant les parenthèses","q":"Développe et réduis : −(4x − 7) − (2x + 3)","choices":["−6x + 4","−6x − 10","−2x + 4","−6x + 10"],"correct":"−6x + 4","explain":"−(4x − 7) = −4x + 7 et −(2x + 3) = −2x − 3. Donc −4x + 7 − 2x − 3 = −6x + 4."},{"topic":"Parenthèse commune – niveau 1","q":"Factorise : (x + 2)(5x + 1) − (x + 2)(3x − 4)","choices":["(x + 2)(2x + 5)","(x + 2)(2x − 3)","(x + 2)(8x − 3)","(x + 2)(2x − 5)"],"correct":"(x + 2)(2x + 5)","explain":"Le facteur commun est (x + 2). Il reste [(5x + 1) − (3x − 4)] = 5x + 1 − 3x + 4 = 2x + 5."},{"topic":"Parenthèse commune – niveau 2","q":"Factorise en mettant (3x − 4) en facteur : (3x − 4)(2x − 1) − (3x − 4)(5x + 2)","choices":["(3x − 4)(−3x − 3)","(3x − 4)(−3x + 1)","(3x − 4)(3x + 1)","(3x − 4)(−3x − 1)"],"correct":"(3x − 4)(−3x − 3)","explain":"(3x − 4)[(2x − 1) − (5x + 2)] = (3x − 4)(2x − 1 − 5x − 2) = (3x − 4)(−3x − 3)."},{"topic":"Factorisation – terme isolé","q":"Factorise : 2(4x + 1) + (4x + 1)(x − 3)","choices":["(4x + 1)(x − 1)","(4x + 1)(x + 5)","(4x + 1)(x − 5)","(4x + 1)(x + 1)"],"correct":"(4x + 1)(x − 1)","explain":"(4x + 1) est commun. On obtient (4x + 1)[2 + (x − 3)] = (4x + 1)(x − 1)."},{"topic":"Défi – factoriser puis développer","q":"Soit E = (2x − 3)(3x + 4) − (2x − 3)(x − 5). Quel couple donne correctement sa forme factorisée et sa forme développée ?","choices":["(2x − 3)(2x + 9) ; 4x² + 12x − 27","(2x − 3)(2x − 1) ; 4x² − 8x + 3","(2x − 3)(2x + 9) ; 4x² + 12x + 27","(2x − 3)(4x − 1) ; 8x² − 14x + 3"],"correct":"(2x − 3)(2x + 9) ; 4x² + 12x − 27","explain":"D'abord E = (2x − 3)[(3x + 4) − (x − 5)] = (2x − 3)(2x + 9). Puis E = 4x² + 18x − 6x − 27 = 4x² + 12x − 27."}];
 const $=id=>document.getElementById(id),area=$("questions"),result=$("result");
-let graded=false;
+let graded=false,startedAt=null;
+function formatDuration(ms){if(ms===null)return "non mesuré";const secs=Math.max(0,Math.round(ms/1000));return Math.floor(secs/60)+" min "+String(secs%60).padStart(2,"0")+" s";}
 function shuffle(list){const a=list.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
 function render(){
-graded=false;area.replaceChildren();result.replaceChildren();result.style.display="none";
+graded=false;startedAt=null;area.replaceChildren();result.replaceChildren();result.style.display="none";
 Q.forEach((item,i)=>{
  const card=document.createElement("section");card.className="card";
  const tag=document.createElement("div");tag.className="tag";tag.textContent="Question "+(i+1)+" / "+Q.length+" · "+item.topic;card.appendChild(tag);
@@ -55,6 +57,7 @@ Q.forEach((item,i)=>{
  shuffle(item.choices).forEach(option=>{
  const label=document.createElement("label");label.className="option";
  const radio=document.createElement("input");radio.type="radio";radio.name="q"+i;radio.value=option;
+ if(i===0)radio.addEventListener("change",()=>{if(startedAt===null)startedAt=Date.now()});
  label.appendChild(radio);label.appendChild(document.createTextNode(option));card.appendChild(label);
  });
  const explanation=document.createElement("div");explanation.className="explain";explanation.textContent="Méthode : "+item.explain;card.appendChild(explanation);
@@ -66,6 +69,8 @@ $("grade").onclick=()=>{
  const selected=Q.map((_,i)=>area.children[i].querySelector('input[type="radio"]:checked'));
  const unanswered=selected.findIndex(x=>!x);
  if(unanswered!==-1){alert("Réponds d'abord à la question "+(unanswered+1)+".");return}
+ const elapsedMs=startedAt===null?null:Math.max(0,Date.now()-startedAt);
+ const averageMs=elapsedMs===null?null:elapsedMs/Q.length;
  graded=true;
  let score=0;const mistakes=[];const topics={};const lines=["THOMAS – CALCUL LITTÉRAL – QUIZ RENFORCEMENT N°3",""];
  Q.forEach((q,i)=>{
@@ -80,10 +85,12 @@ $("grade").onclick=()=>{
   card.querySelector(".explain").style.display="block";
   lines.push((i+1)+". ["+q.topic+"] "+q.q,"Réponse Thomas : "+chosen,"Réponse attendue : "+q.correct,ok?"JUSTE":"ERREUR","Méthode : "+q.explain,"");
  });
- lines.splice(1,0,"Score : "+score+"/"+Q.length,...Object.entries(topics).map(([topic,v])=>topic+" : "+v.good+"/"+v.total));
+ lines.splice(1,0,"Score : "+score+"/"+Q.length,"Temps de réponse : "+formatDuration(elapsedMs),"Moyenne par question : "+formatDuration(averageMs),...Object.entries(topics).map(([topic,v])=>topic+" : "+v.good+"/"+v.total));
  const report=lines.join("\n");
  result.style.display="block";
  const h=document.createElement("h2");h.textContent="Résultat : "+score+" / "+Q.length;result.appendChild(h);
+ const timeP=document.createElement("p");timeP.textContent="Temps : "+formatDuration(elapsedMs)+" · Moyenne : "+formatDuration(averageMs)+" / question";result.appendChild(timeP);
+ const timeNote=document.createElement("p");timeNote.className="muted";timeNote.textContent="Mesure approximative : du premier choix de la question 1 jusqu'au clic sur Corriger (pauses éventuelles incluses).";result.appendChild(timeNote);
  const scoreParts=document.createElement("p");scoreParts.className="muted";scoreParts.textContent=Object.entries(topics).map(([topic,v])=>topic+" : "+v.good+"/"+v.total).join(" · ");result.appendChild(scoreParts);
  const errorsTitle=document.createElement("h3");errorsTitle.textContent="Questions à revoir : "+mistakes.length;result.appendChild(errorsTitle);
  if(!mistakes.length){const p=document.createElement("p");p.textContent="Excellent : les 5 expressions sont maîtrisées !";result.appendChild(p)}

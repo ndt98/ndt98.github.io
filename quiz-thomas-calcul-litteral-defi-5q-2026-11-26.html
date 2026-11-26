@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Thomas – Calcul littéral – Quiz défi n°4</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:#f4f6fa;color:#1a2638;font:16px -apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif}
+main{max-width:740px;margin:auto;padding:17px 15px 42px}
+.card{background:#fff;padding:19px;border:1px solid #dbe1eb;border-radius:16px;margin:13px 0}
+h1{font-size:25px;line-height:1.25;margin:0 0 9px}h2{font-size:23px;margin:0 0 10px}h3{font-size:17px}
+p{line-height:1.5}.muted{color:#66758b;font-size:14px}
+.chip{display:inline-block;padding:5px 10px;border-radius:20px;background:#e9eef8;color:#2c5485;font-size:13px;font-weight:700;margin-right:6px}
+.question{font-size:19px;font-weight:750;margin:9px 0 13px;line-height:1.48}
+.tag{font-size:13px;color:#63738b;font-weight:700}
+.option{display:block;border:1px solid #d4dce8;border-radius:11px;padding:12px;margin:9px 0;cursor:pointer;line-height:1.45}
+.option input{transform:scale(1.18);margin-right:10px}
+.option.good{background:#e8f8ea;border-color:#79b58e}.option.bad{background:#fff0f1;border-color:#d69aa3}
+.explain{display:none;margin-top:12px;padding:11px 13px;background:#f0f5fd;border-radius:9px;line-height:1.5;font-size:14px}
+button{width:100%;font-size:16px;font-weight:750;line-height:1.3;border:0;border-radius:12px;padding:14px;margin:7px 0;color:#fff;background:#193354;cursor:pointer}
+button.secondary{background:#e6ebf3;color:#1a2638}
+button:disabled{opacity:.55}
+#result{display:none;border:2px solid #2b476c}
+.error{padding:12px;margin:10px 0;border-left:4px solid #cc5f6f;background:#fff4f5;border-radius:8px}
+textarea{width:100%;min-height:215px;border:1px solid #c2cad6;padding:12px;border-radius:10px;font:14px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;user-select:text;-webkit-user-select:text}
+pre{white-space:pre-wrap;overflow-wrap:anywhere;padding:12px;border-radius:10px;background:#f5f7fb;font-size:13px;user-select:text;-webkit-user-select:text}
+</style>
+</head>
+<body><main>
+<section class="card">
+<h1>Maths 3e – Thomas</h1>
+<p><strong>Calcul littéral : quiz n°4 – Défis de raisonnement</strong></p>
+<div><span class="chip">5 questions</span><span class="chip">20 à 25 minutes</span><span class="chip">Sans calculatrice</span></div>
+<p class="muted">Après 5/5 au quiz n°3 : cinq problèmes plus difficiles, sans technique indiquée à l’avance, mêlant développement, factorisation et calcul d’une valeur. Une seule réponse par question, correction détaillée à la fin.</p>
+</section>
+<section id="result" class="card" aria-live="polite"></section>
+<div id="questions"></div>
+<button id="grade" type="button">Corriger mes 5 réponses</button>
+<button id="reset" type="button" class="secondary">Recommencer la même série</button>
+</main>
+<script>
+(()=>{
+"use strict";
+const Q=[{"topic":"Calcul littéral – plusieurs parenthèses","q":"Développe et réduis : −2(3x − 4) + 3(x − 5) − (2x + 1)","choices":["−5x − 8","−5x + 8","−x − 8","−5x − 6"],"correct":"−5x − 8","explain":"−2(3x − 4) = −6x + 8 ; 3(x − 5) = 3x − 15 ; −(2x + 1) = −2x − 1. On réduit : (−6 + 3 − 2)x + (8 − 15 − 1) = −5x − 8."},{"topic":"Facteur commun sous une forme opposée","q":"Factorise en remarquant que 4 − x est l'opposé de x − 4 : (x − 4)(3x + 2) + (4 − x)(x − 5)","choices":["(x − 4)(2x + 7)","(x − 4)(4x − 3)","(x − 4)(2x − 3)","(x − 4)(4x + 7)"],"correct":"(x − 4)(2x + 7)","explain":"4 − x = −(x − 4). On obtient (x − 4)[(3x + 2) − (x − 5)] = (x − 4)(3x + 2 − x + 5) = (x − 4)(2x + 7)."},{"topic":"Double distributivité – soustraction","q":"Développe et réduis : (2x − 3)(x + 4) − (x − 1)(x + 6)","choices":["x² − 6","x² + 10x − 18","x² − 18","x² + 6"],"correct":"x² − 6","explain":"Premier produit : 2x² + 5x − 12. Second produit : x² + 5x − 6. Leur différence vaut 2x² + 5x − 12 − x² − 5x + 6 = x² − 6."},{"topic":"Factorisation – soustraction de deux produits","q":"Factorise en mettant (2x + 1) en facteur : (2x + 1)(3x − 2) − (2x + 1)(x + 4)","choices":["(2x + 1)(2x − 6)","(2x + 1)(2x + 2)","(2x + 1)(4x + 2)","(2x + 1)(2x − 2)"],"correct":"(2x + 1)(2x − 6)","explain":"On met le facteur commun en évidence : (2x + 1)[(3x − 2) − (x + 4)] = (2x + 1)(3x − 2 − x − 4) = (2x + 1)(2x − 6)."},{"topic":"Défi final – factoriser et calculer","q":"Soit E = (x − 2)(4x + 3) − (x − 2)(x − 5). Quelle proposition donne la bonne forme factorisée ET la bonne valeur de E pour x = 3 ?","choices":["(x − 2)(3x + 8) ; E(3) = 17","(x − 2)(5x − 2) ; E(3) = 13","(x − 2)(3x − 2) ; E(3) = 7","(x − 2)(3x + 8) ; E(3) = 11"],"correct":"(x − 2)(3x + 8) ; E(3) = 17","explain":"E = (x − 2)[(4x + 3) − (x − 5)] = (x − 2)(3x + 8). Pour x = 3 : (3 − 2)(3 × 3 + 8) = 1 × 17 = 17."}];
+const $=id=>document.getElementById(id),area=$("questions"),result=$("result");
+let graded=false;
+function shuffle(list){const a=list.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
+function render(){
+graded=false;area.replaceChildren();result.replaceChildren();result.style.display="none";
+Q.forEach((item,i)=>{
+ const card=document.createElement("section");card.className="card";
+ const tag=document.createElement("div");tag.className="tag";tag.textContent="Question "+(i+1)+" / "+Q.length+" · "+item.topic;card.appendChild(tag);
+ const question=document.createElement("div");question.className="question";question.textContent=item.q;card.appendChild(question);
+ shuffle(item.choices).forEach(option=>{
+ const label=document.createElement("label");label.className="option";
+ const radio=document.createElement("input");radio.type="radio";radio.name="q"+i;radio.value=option;
+ label.appendChild(radio);label.appendChild(document.createTextNode(option));card.appendChild(label);
+ });
+ const explanation=document.createElement("div");explanation.className="explain";explanation.textContent="Méthode : "+item.explain;card.appendChild(explanation);
+ area.appendChild(card);
+});
+}
+$("grade").onclick=()=>{
+ if(graded)return;
+ const selected=Q.map((_,i)=>area.children[i].querySelector('input[type="radio"]:checked'));
+ const unanswered=selected.findIndex(x=>!x);
+ if(unanswered!==-1){alert("Réponds d'abord à la question "+(unanswered+1)+".");return}
+ graded=true;
+ let score=0;const mistakes=[];const topics={};const lines=["THOMAS – CALCUL LITTÉRAL – QUIZ DÉFI N°4",""];
+ Q.forEach((q,i)=>{
+  const card=area.children[i];const chosen=selected[i].value;const ok=chosen===q.correct;
+  topics[q.topic]??={good:0,total:0};topics[q.topic].total++;
+  if(ok){score++;topics[q.topic].good++}else mistakes.push({number:i+1,q:q.q,chosen,expected:q.correct,explain:q.explain});
+  card.querySelectorAll(".option").forEach(label=>{
+    const input=label.querySelector("input");input.disabled=true;
+    if(input.value===q.correct)label.classList.add("good");
+    else if(input.value===chosen)label.classList.add("bad");
+  });
+  card.querySelector(".explain").style.display="block";
+  lines.push((i+1)+". ["+q.topic+"] "+q.q,"Réponse Thomas : "+chosen,"Réponse attendue : "+q.correct,ok?"JUSTE":"ERREUR","Méthode : "+q.explain,"");
+ });
+ lines.splice(1,0,"Score : "+score+"/"+Q.length,...Object.entries(topics).map(([topic,v])=>topic+" : "+v.good+"/"+v.total));
+ const report=lines.join("\n");
+ result.style.display="block";
+ const h=document.createElement("h2");h.textContent="Résultat : "+score+" / "+Q.length;result.appendChild(h);
+ const scoreParts=document.createElement("p");scoreParts.className="muted";scoreParts.textContent=Object.entries(topics).map(([topic,v])=>topic+" : "+v.good+"/"+v.total).join(" · ");result.appendChild(scoreParts);
+ const errorsTitle=document.createElement("h3");errorsTitle.textContent="Questions à revoir : "+mistakes.length;result.appendChild(errorsTitle);
+ if(!mistakes.length){const p=document.createElement("p");p.textContent="Excellent : les 5 expressions sont maîtrisées !";result.appendChild(p)}
+ mistakes.forEach(m=>{
+  const box=document.createElement("div");box.className="error";
+  const strong=document.createElement("strong");strong.textContent="Q"+m.number+" – "+m.q;box.appendChild(strong);
+  const p=document.createElement("p");p.textContent="Thomas : "+m.chosen+" | Attendu : "+m.expected;box.appendChild(p);
+  const explanation=document.createElement("p");explanation.className="muted";explanation.textContent=m.explain;box.appendChild(explanation);result.appendChild(box);
+ });
+ const help=document.createElement("p");help.className="muted";help.textContent="Partage le détail à ChatGPT pour préparer le quiz suivant à partir des erreurs.";result.appendChild(help);
+ const share=document.createElement("button");share.textContent="Partager le résultat (iPhone)";share.type="button";result.appendChild(share);
+ const copy=document.createElement("button");copy.textContent="Copier score et réponses";copy.type="button";copy.className="secondary";result.appendChild(copy);
+ const status=document.createElement("p");status.className="muted";status.setAttribute("aria-live","polite");result.appendChild(status);
+ const textArea=document.createElement("textarea");textArea.readOnly=true;textArea.value=report;result.appendChild(textArea);
+ const pre=document.createElement("pre");pre.textContent=report;result.appendChild(pre);
+ function oldCopy(){textArea.focus();textArea.select();textArea.setSelectionRange(0,textArea.value.length);let good=false;try{good=document.execCommand("copy")}catch(e){}status.textContent=good?"Copié ! Colle le résultat dans ChatGPT.":"Sélectionne le texte ci-dessous et choisis « Copier »."}
+ copy.onclick=async()=>{try{if(!navigator.clipboard?.writeText)throw new Error("Indisponible");await navigator.clipboard.writeText(report);status.textContent="Copié ! Colle le résultat dans ChatGPT."}catch(e){oldCopy()}};
+ share.onclick=async()=>{
+  if(typeof navigator.share==="function"){
+   try{await navigator.share({title:"Quiz Thomas – Calcul littéral – défi n°4",text:report});status.textContent="Partage effectué.";return}
+   catch(e){if(e&&e.name==="AbortError"){status.textContent="Partage annulé.";return}}
+  }
+  oldCopy()
+ };
+ window.scrollTo({top:0,behavior:"smooth"});
+};
+$("reset").onclick=()=>{render();window.scrollTo({top:0,behavior:"smooth"})};
+render();
+})();
+</script></body></html>
